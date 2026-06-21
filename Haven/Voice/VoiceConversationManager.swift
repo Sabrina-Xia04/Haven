@@ -62,6 +62,7 @@ class VoiceConversationManager: ObservableObject {
     @Published var activeAgent: AgentType = .companion
     @Published var recentAgents: [AgentType] = []   // for chips UI
     @Published var audioLevel: Float = 0
+    @Published var errorMessage: String? = nil   // mic permission / connection errors
 
     // ── Services ────────────────────────────────────────────────────────
     private let capture  = AudioCaptureService()
@@ -154,20 +155,39 @@ class VoiceConversationManager: ObservableObject {
         audioLevel = 0
     }
 
-    /// User taps "done" manually — process whatever transcript we have so far.
+    /// User taps the send/stop button while listening.
     func sendCurrentTranscript() {
+        guard phase == .listening else { return }
         let text = transcript.trimmingCharacters(in: .whitespaces)
-        guard !text.isEmpty, phase == .listening else { return }
         capture.stop()
         stt.disconnect()
-        Task { await runAgentTurn(userText: text) }
+        if text.isEmpty {
+            // Nothing was heard — stay in idle so user can try again
+            phase = .idle
+            errorMessage = "Didn't catch that — try again"
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                self.errorMessage = nil
+            }
+        } else {
+            Task { await runAgentTurn(userText: text) }
+        }
     }
 
     // MARK: - Live mode
     private func startLive() {
         Task {
-            guard await capture.requestPermission() else { return }
-            try? capture.start()
+            guard await capture.requestPermission() else {
+                errorMessage = "Microphone access denied — check Settings"
+                phase = .idle
+                return
+            }
+            do {
+                try capture.start()
+            } catch {
+                errorMessage = "Mic error: \(error.localizedDescription)"
+                phase = .idle
+                return
+            }
             stt.connect()
             phase = .listening
         }

@@ -148,10 +148,9 @@ struct VoiceConversationOverlay: View {
     // MARK: - Bottom: send button (listening) or agent chips (response)
     private var bottomSection: some View {
         ZStack {
-            // Send / done button — only while listening
+            // Send / done button — always tappable while listening
             if manager.phase == .listening {
                 VStack(spacing: 12) {
-                    // Mic pulse indicator
                     MicPulse(level: manager.audioLevel)
 
                     Button(action: { manager.sendCurrentTranscript() }) {
@@ -159,36 +158,42 @@ struct VoiceConversationOverlay: View {
                             Circle()
                                 .fill(
                                     manager.transcript.isEmpty
-                                        ? Color(hex: "cde8f6").opacity(0.10)
+                                        ? Color(hex: "cde8f6").opacity(0.12)
                                         : Color(hex: "7ecdb8").opacity(0.28)
                                 )
                                 .frame(width: 64, height: 64)
                                 .overlay(
                                     Circle().stroke(
                                         manager.transcript.isEmpty
-                                            ? Color(hex: "cde8f6").opacity(0.18)
-                                            : Color(hex: "7ecdb8").opacity(0.6),
+                                            ? Color(hex: "cde8f6").opacity(0.3)
+                                            : Color(hex: "7ecdb8").opacity(0.7),
                                         lineWidth: 1.5
                                     )
                                 )
 
-                            Image(systemName: "arrow.up")
-                                .font(.system(size: 22, weight: .semibold))
+                            Image(systemName: manager.transcript.isEmpty ? "stop.fill" : "arrow.up")
+                                .font(.system(size: manager.transcript.isEmpty ? 18 : 22, weight: .semibold))
                                 .foregroundColor(
                                     manager.transcript.isEmpty
-                                        ? Color(hex: "8cbdd4").opacity(0.4)
+                                        ? Color(hex: "8cbdd4").opacity(0.6)
                                         : Color(hex: "e6f4fc")
                                 )
                         }
                     }
-                    .disabled(manager.transcript.isEmpty)
                     .animation(.easeInOut(duration: 0.2), value: manager.transcript.isEmpty)
 
-                    Text(manager.transcript.isEmpty ? "waiting…" : "tap to send")
-                        .font(.system(size: 11))
-                        .kerning(1.5)
-                        .textCase(.uppercase)
-                        .foregroundColor(Color(hex: "8cbdd4").opacity(0.5))
+                    if let err = manager.errorMessage {
+                        Text(err)
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(hex: "e8a0a0").opacity(0.85))
+                            .transition(.opacity)
+                    } else {
+                        Text(manager.transcript.isEmpty ? "listening…" : "tap ↑ to send")
+                            .font(.system(size: 11))
+                            .kerning(1.5)
+                            .textCase(.uppercase)
+                            .foregroundColor(Color(hex: "8cbdd4").opacity(0.5))
+                    }
                 }
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }

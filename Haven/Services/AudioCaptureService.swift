@@ -1,18 +1,17 @@
 import AVFoundation
-import Combine
 
 /// Captures microphone audio and streams 16-kHz linear-16 PCM chunks.
-/// Publishes an RMS level (0–1) for the waveform visualiser.
 @MainActor
 class AudioCaptureService: ObservableObject {
 
     @Published var level: Float = 0
     @Published var isCapturing = false
 
-    /// Called on the main actor with each raw PCM chunk (linear16, 16 kHz, mono).
     var onChunk: ((Data) -> Void)?
 
     private let engine = AVAudioEngine()
+
+    // Immutable — safe to capture into audio-thread closure
     private let targetFormat = AVAudioFormat(
         commonFormat: .pcmFormatInt16,
         sampleRate: 16_000, channels: 1, interleaved: true)!
@@ -26,7 +25,7 @@ class AudioCaptureService: ObservableObject {
         }
     }
 
-    // MARK: - Start / Stop
+    // MARK: - Start
     func start() throws {
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playAndRecord,
@@ -37,49 +36,56 @@ class AudioCaptureService: ObservableObject {
         let input = engine.inputNode
         let inputFmt = input.outputFormat(forBus: 0)
 
+        // Capture targetFormat by value so the audio thread never touches @MainActor self
+        let outFmt = targetFormat
+
         input.installTap(onBus: 0, bufferSize: 4096, format: inputFmt) { [weak self] buf, _ in
-            guard let self else { return }
-            // RMS level for waveform
+            // ── Audio thread ───────────────────────────────────────────────
+
+            // RMS level — post to main actor
             if let ch = buf.floatChannelData?[0] {
                 let n = Int(buf.frameLength)
                 var sum: Float = 0
                 for i in 0..<n { sum += ch[i] * ch[i] }
                 let rms = sqrt(sum / Float(max(n, 1)))
-                Task { @MainActor in self.level = min(rms * 25, 1.0) }
+                Task { @MainActor in self?.level = min(rms * 25, 1.0) }
             }
-            // Resample → 16 kHz int16 and forward
-            if let pcm = self.resample(buf, to: self.targetFormat) {
-                let data = pcm.int16ChannelData.map {
-                    Data(bytes: $0, count: Int(pcm.frameLength) * 2)
-                } ?? Data()
-                if !data.isEmpty {
-                    Task { @MainActor in self.onChunk?(data) }
-                }
-            }
+
+            // Resample — pure static, no actor isolation needed
+            guard let pcm = AudioCaptureService.resample(buf, to: outFmt),
+                  let ptr = pcm.int16ChannelData else { return }
+            let data = Data(bytes: ptr[0], count: Int(pcm.frameLength) * 2)
+            guard !data.isEmpty else { return }
+
+            Task { @MainActor in self?.onChunk?(data) }
         }
 
         try engine.start()
         isCapturing = true
     }
 
+    // MARK: - Stop
     func stop() {
-        engine.stop()
         engine.inputNode.removeTap(onBus: 0)
+        engine.stop()
         isCapturing = false
         level = 0
     }
 
-    // MARK: - Private
-    private func resample(_ buf: AVAudioPCMBuffer, to fmt: AVAudioFormat) -> AVAudioPCMBuffer? {
+    // MARK: - Resample (nonisolated static — safe on any thread)
+    private nonisolated static func resample(
+        _ buf: AVAudioPCMBuffer,
+        to fmt: AVAudioFormat
+    ) -> AVAudioPCMBuffer? {
         guard let conv = AVAudioConverter(from: buf.format, to: fmt) else { return nil }
         let ratio = fmt.sampleRate / buf.format.sampleRate
         let cap = AVAudioFrameCount(Double(buf.frameLength) * ratio + 1)
         guard let out = AVAudioPCMBuffer(pcmFormat: fmt, frameCapacity: cap) else { return nil }
         var done = false
-        let st = conv.convert(to: out, error: nil) { _, status in
-            if done { status.pointee = .noDataNow; return nil }
-            done = true; status.pointee = .haveData; return buf
+        let status = conv.convert(to: out, error: nil) { _, outStatus in
+            if done { outStatus.pointee = .noDataNow; return nil }
+            done = true; outStatus.pointee = .haveData; return buf
         }
-        return st == .error ? nil : out
+        return status == .error ? nil : out
     }
 }
