@@ -87,12 +87,13 @@ struct HomeView: View {
                 HStack {
                     Button(action: { vm.toggleReturning() }) {
                         Circle()
-                            .fill(Color(hex: "cde8f6").opacity(0.18))
-                            .frame(width: 30, height: 30)
+                            .fill(Color(hex: "cde8f6").opacity(0.22))
+                            .frame(width: 34, height: 34)
+                            .overlay(Circle().stroke(Color(hex: "cde8f6").opacity(0.35), lineWidth: 1))
                             .overlay(
                                 Text("◖")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(Color(hex: "60566c").opacity(0.7))
+                                    .font(.system(size: 15))
+                                    .foregroundColor(Color(hex: "cde8f6").opacity(0.9))
                             )
                     }
                     .padding(.leading, 22)
@@ -103,16 +104,17 @@ struct HomeView: View {
                     Button(action: { showingNotifSettings = true }) {
                         ZStack {
                             Circle()
-                                .fill(Color(hex: "cde8f6").opacity(0.18))
-                                .frame(width: 30, height: 30)
+                                .fill(Color(hex: "cde8f6").opacity(0.22))
+                                .frame(width: 34, height: 34)
+                                .overlay(Circle().stroke(Color(hex: "cde8f6").opacity(0.35), lineWidth: 1))
                             Image(systemName: notifManager.permissionGranted ? "bell.fill" : "bell")
-                                .font(.system(size: 13))
-                                .foregroundColor(Color(hex: "60566c").opacity(0.7))
+                                .font(.system(size: 14))
+                                .foregroundColor(Color(hex: "cde8f6").opacity(0.9))
                             if !notifManager.permissionGranted {
                                 Circle()
                                     .fill(Color(hex: "e8a0a0"))
                                     .frame(width: 7, height: 7)
-                                    .offset(x: 8, y: -8)
+                                    .offset(x: 9, y: -9)
                             }
                         }
                     }

@@ -28,27 +28,42 @@ class DeepgramSTTService: NSObject, ObservableObject {
             .init(name: "sample_rate",      value: "16000"),
             .init(name: "channels",         value: "1"),
             .init(name: "interim_results",  value: "true"),
-            .init(name: "endpointing",      value: "400"),   // 400 ms silence → final
+            .init(name: "endpointing",      value: "400"),
             .init(name: "utterance_end_ms", value: "1000"),
             .init(name: "smart_format",     value: "true"),
         ]
         var req = URLRequest(url: comps.url!)
         req.setValue("Token \(HavenConfig.deepgramAPIKey)", forHTTPHeaderField: "Authorization")
 
+        print("🔌 [STT] connecting to \(comps.url!)")
+        print("🔌 [STT] API key prefix = \(String(HavenConfig.deepgramAPIKey.prefix(8)))...")
         wsTask = urlSession.webSocketTask(with: req)
         wsTask?.resume()
         connected = true
+        print("🔌 [STT] wsTask resumed, starting receive loop")
         receive()
     }
 
     // MARK: - Send audio chunk
+    private var chunksSent = 0
     func send(_ data: Data) {
-        guard connected, let task = wsTask else { return }
-        task.send(.data(data)) { _ in }
+        guard connected, let task = wsTask else {
+            if chunksSent == 0 { print("⚠️ [STT] send called but not connected or no task") }
+            return
+        }
+        chunksSent += 1
+        if chunksSent == 1 || chunksSent % 50 == 0 {
+            print("📤 [STT] sent chunk #\(chunksSent), size=\(data.count) bytes")
+        }
+        task.send(.data(data)) { err in
+            if let err { print("❌ [STT] send error: \(err)") }
+        }
     }
 
     // MARK: - Disconnect
     func disconnect() {
+        print("🔌 [STT] disconnect called (chunksSent=\(chunksSent))")
+        chunksSent = 0
         wsTask?.cancel(with: .normalClosure, reason: nil)
         connected = false
         interimTranscript = ""
@@ -62,9 +77,18 @@ class DeepgramSTTService: NSObject, ObservableObject {
                 guard let self else { return }
                 switch result {
                 case .success(let msg):
-                    if case .string(let json) = msg { self.parse(json) }
+                    switch msg {
+                    case .string(let json):
+                        print("📥 [STT] received text (\(json.count) chars): \(json.prefix(200))")
+                        self.parse(json)
+                    case .data(let d):
+                        print("📥 [STT] received binary data: \(d.count) bytes")
+                    @unknown default:
+                        print("📥 [STT] received unknown message type")
+                    }
                     self.receive()
-                case .failure:
+                case .failure(let err):
+                    print("❌ [STT] WebSocket error: \(err)")
                     self.connected = false
                 }
             }
@@ -74,22 +98,35 @@ class DeepgramSTTService: NSObject, ObservableObject {
     // MARK: - Parse Deepgram response
     private func parse(_ json: String) {
         guard let data = json.data(using: .utf8),
-              let obj  = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let chan  = obj["channel"] as? [String: Any],
+              let obj  = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else {
+            print("⚠️ [STT] parse: invalid JSON")
+            return
+        }
+
+        // Log non-results messages (metadata, errors, etc.)
+        if let type_ = obj["type"] as? String, type_ != "Results" {
+            print("ℹ️ [STT] Deepgram msg type=\(type_): \(json.prefix(300))")
+            return
+        }
+
+        guard let chan  = obj["channel"] as? [String: Any],
               let alts  = chan["alternatives"] as? [[String: Any]],
               let text  = alts.first?["transcript"] as? String,
               !text.isEmpty
-        else { return }
+        else {
+            // Empty result (silence) — normal, don't spam
+            return
+        }
 
         let isFinal     = obj["is_final"]      as? Bool ?? false
         let speechFinal = obj["speech_final"]  as? Bool ?? false
+        print("📝 [STT] transcript: \"\(text)\" isFinal=\(isFinal) speechFinal=\(speechFinal)")
 
-        Task { @MainActor in
-            self.interimTranscript = text
-            if isFinal && speechFinal {
-                self.finalTranscript = text
-                self.interimTranscript = ""
-            }
+        interimTranscript = text
+        if isFinal && speechFinal {
+            finalTranscript = text
+            interimTranscript = ""
         }
     }
 }

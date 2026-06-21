@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(security find-generic-password *)",
+      "Bash(security find-identity *)",
+      "Bash(/usr/libexec/PlistBuddy -c \"Print :IDEProvisioningTeams\" ~/Library/Preferences/com.apple.dt.Xcode.plist)",
+      "Bash(open -a Xcode ~/Library/Developer/Xcode/Archives/2026-06-21/\"Haven 2026-06-21 12.29.xcarchive\")",
+      "Bash(osascript -e 'tell application \"Xcode\" to activate')"
+    ]
+  }
+}

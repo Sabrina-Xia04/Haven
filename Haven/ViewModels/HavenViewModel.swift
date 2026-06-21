@@ -262,10 +262,28 @@ class HavenViewModel: ObservableObject {
     private static let memoriesKey = "haven_memories_v1"
 
     private static func loadMemories() -> [MemoryItem] {
-        guard let data = UserDefaults.standard.data(forKey: memoriesKey),
-              let decoded = try? JSONDecoder().decode([MemoryItem].self, from: data)
-        else { return [] }
-        return decoded
+        if let data = UserDefaults.standard.data(forKey: memoriesKey),
+           let decoded = try? JSONDecoder().decode([MemoryItem].self, from: data),
+           !decoded.isEmpty {
+            return decoded
+        }
+        // Demo seed data — shown on first launch
+        return [
+            MemoryItem(title: "研究提案",   subtitle: "让你感到\n窒息的开始",
+                       size: 158, xFraction: 0.22, yFraction: 0.28, animDelay: 0.0),
+            MemoryItem(title: "自我批判",   subtitle: "总是比别人\n更苛刻自己",
+                       size: 138, xFraction: 0.65, yFraction: 0.22, animDelay: 0.2),
+            MemoryItem(title: "睡前焦虑",   subtitle: "凌晨三点\n脑子停不下来",
+                       size: 148, xFraction: 0.50, yFraction: 0.52, animDelay: 0.4),
+            MemoryItem(title: "喜欢独处",   subtitle: "充电方式\n是安静",
+                       size: 128, xFraction: 0.20, yFraction: 0.65, animDelay: 0.6),
+            MemoryItem(title: "咖啡是仪式", subtitle: "早晨的锚点",
+                       size: 128, xFraction: 0.75, yFraction: 0.60, animDelay: 0.8),
+            MemoryItem(title: "拖延背后",   subtitle: "是害怕\n做得不够好",
+                       size: 148, xFraction: 0.38, yFraction: 0.80, animDelay: 1.0),
+            MemoryItem(title: "对朋友温柔", subtitle: "对自己\n却很难",
+                       size: 138, xFraction: 0.72, yFraction: 0.82, animDelay: 1.2),
+        ]
     }
 
     private func saveMemories() {

@@ -145,10 +145,10 @@ struct VoiceConversationOverlay: View {
         .animation(.easeInOut(duration: 0.2),  value: manager.phase)
     }
 
-    // MARK: - Bottom: send button (listening) or agent chips (response)
+    // MARK: - Bottom: send button (listening) or agent chips (response) or idle status
     private var bottomSection: some View {
         ZStack {
-            // Send / done button — always tappable while listening
+            // Send / done button — visible while listening
             if manager.phase == .listening {
                 VStack(spacing: 12) {
                     MicPulse(level: manager.audioLevel)
@@ -208,6 +208,26 @@ struct VoiceConversationOverlay: View {
                 }
                 .frame(height: 32)
                 .animation(.spring(response: 0.35, dampingFraction: 0.7), value: manager.recentAgents)
+                .transition(.opacity)
+            }
+
+            // Idle state — show error or debug status so user isn't staring at a blank screen
+            if manager.phase == .idle {
+                VStack(spacing: 10) {
+                    if let err = manager.errorMessage {
+                        Text(err)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(Color(hex: "e8a0a0"))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                    } else if !manager.debugStatus.isEmpty {
+                        Text(manager.debugStatus)
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(hex: "8cbdd4").opacity(0.6))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                    }
+                }
                 .transition(.opacity)
             }
         }

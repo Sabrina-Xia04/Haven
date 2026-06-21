@@ -63,6 +63,12 @@ class VoiceConversationManager: ObservableObject {
     @Published var recentAgents: [AgentType] = []   // for chips UI
     @Published var audioLevel: Float = 0
     @Published var errorMessage: String? = nil   // mic permission / connection errors
+    @Published var debugStatus: String = ""      // visible in overlay for diagnostics
+
+    private func setStatus(_ msg: String) {
+        print("ℹ️ [VCM] \(msg)")
+        debugStatus = msg
+    }
 
     // ── Services ────────────────────────────────────────────────────────
     private let capture  = AudioCaptureService()
@@ -81,11 +87,16 @@ class VoiceConversationManager: ObservableObject {
     init() { wireUp() }
 
     // MARK: - Wire services together
+    private var chunksReceived = 0
     private func wireUp() {
         // Audio level → published
         capture.onChunk = { [weak self] data in
             guard let self else { return }
+            self.chunksReceived += 1
             self.audioLevel = self.capture.level
+            if self.chunksReceived == 1 || self.chunksReceived % 50 == 0 {
+                print("🎵 [VCM] audio chunk #\(self.chunksReceived), \(data.count) bytes, level=\(String(format:"%.2f", self.capture.level))")
+            }
             self.stt.send(data)
         }
 
@@ -157,7 +168,11 @@ class VoiceConversationManager: ObservableObject {
 
     /// User taps the send/stop button while listening.
     func sendCurrentTranscript() {
-        guard phase == .listening else { return }
+        print("🔴 [VCM] sendCurrentTranscript called, phase=\(phase), transcript=\"\(transcript)\"")
+        guard phase == .listening else {
+            print("⚠️ [VCM] sendCurrentTranscript: ignored — phase is \(phase), not .listening")
+            return
+        }
         let text = transcript.trimmingCharacters(in: .whitespaces)
         capture.stop()
         stt.disconnect()
@@ -176,19 +191,27 @@ class VoiceConversationManager: ObservableObject {
     // MARK: - Live mode
     private func startLive() {
         Task {
-            guard await capture.requestPermission() else {
+            setStatus("requesting mic permission…")
+            let granted = await capture.requestPermission()
+            setStatus("mic permission = \(granted)")
+            guard granted else {
                 errorMessage = "Microphone access denied — check Settings"
                 phase = .idle
                 return
             }
+            setStatus("starting audio engine…")
             do {
                 try capture.start()
+                setStatus("audio engine running, connecting to Deepgram…")
             } catch {
+                print("❌ [VCM] AudioCaptureService start error: \(error)")
                 errorMessage = "Mic error: \(error.localizedDescription)"
+                setStatus("ERROR: \(error.localizedDescription)")
                 phase = .idle
                 return
             }
             stt.connect()
+            setStatus("Deepgram connected — listening")
             phase = .listening
         }
     }

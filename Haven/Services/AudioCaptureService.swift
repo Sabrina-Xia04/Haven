@@ -32,15 +32,26 @@ class AudioCaptureService: ObservableObject {
                                 mode: .measurement,
                                 options: [.defaultToSpeaker, .allowBluetooth])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
+        print("🎤 [Capture] AVAudioSession active. sampleRate=\(session.sampleRate) inputChannels=\(session.inputNumberOfChannels)")
 
         let input = engine.inputNode
         let inputFmt = input.outputFormat(forBus: 0)
+        print("🎤 [Capture] inputNode format: \(inputFmt)")
+        print("🎤 [Capture] targetFormat: \(targetFormat)")
+
+        guard inputFmt.sampleRate > 0 else {
+            print("❌ [Capture] inputNode returned zero sample rate — aborting")
+            throw NSError(domain: "AudioCapture", code: -1,
+                          userInfo: [NSLocalizedDescriptionKey: "Input node has zero sample rate"])
+        }
 
         // Capture targetFormat by value so the audio thread never touches @MainActor self
         let outFmt = targetFormat
+        var tapCount = 0
 
         input.installTap(onBus: 0, bufferSize: 4096, format: inputFmt) { [weak self] buf, _ in
-            // ── Audio thread ───────────────────────────────────────────────
+            tapCount += 1
+            if tapCount == 1 { print("🎤 [Capture] first tap fired! frameLength=\(buf.frameLength)") }
 
             // RMS level — post to main actor
             if let ch = buf.floatChannelData?[0] {
@@ -53,7 +64,10 @@ class AudioCaptureService: ObservableObject {
 
             // Resample — pure static, no actor isolation needed
             guard let pcm = AudioCaptureService.resample(buf, to: outFmt),
-                  let ptr = pcm.int16ChannelData else { return }
+                  let ptr = pcm.int16ChannelData else {
+                if tapCount <= 3 { print("⚠️ [Capture] resample returned nil on tap #\(tapCount)") }
+                return
+            }
             let data = Data(bytes: ptr[0], count: Int(pcm.frameLength) * 2)
             guard !data.isEmpty else { return }
 
@@ -61,6 +75,7 @@ class AudioCaptureService: ObservableObject {
         }
 
         try engine.start()
+        print("🎤 [Capture] AVAudioEngine started")
         isCapturing = true
     }
 
