@@ -32,21 +32,6 @@ struct AquariumView: View {
                         Circle()
                             .stroke(Color(hex: "cde8f6").opacity(0.18), lineWidth: 1)
                     )
-                    .overlay(
-                        // Specular highlight
-                        Ellipse()
-                            .fill(
-                                RadialGradient(
-                                    colors: [Color.white.opacity(0.9), Color.clear],
-                                    center: .center,
-                                    startRadius: 0,
-                                    endRadius: 50
-                                )
-                            )
-                            .frame(width: 90, height: 55)
-                            .offset(x: -42, y: -80)
-                        , alignment: .center
-                    )
                     .clipShape(Circle())
 
                 // Ambient particles (sparkles)
@@ -64,7 +49,6 @@ struct AquariumView: View {
                     onTap: { vm.jellyfishTapped() },
                     onLongPress: { vm.jellyfishLongPressed() }
                 )
-                .offset(y: -10)
 
                 // Returning hug glow (stays inside globe)
                 if vm.isReturning {
