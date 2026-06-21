@@ -9,21 +9,70 @@ struct ContentView: View {
             let W = geo.size.width
             let H = geo.size.height
 
-            // Each panel sits at its "world" position via .offset().
-            // offset() moves visuals without affecting layout, so all panels
-            // keep their W×H layout footprint — ZStack stays W×H — and
-            // .clipped() on the GeometryReader hides anything outside.
             ZStack {
-                makePanel(HomeView(vm: vm),         panelX: 0,  panelY: 0,  W: W, H: H)
-                makePanel(SeedsView(vm: vm),         panelX: 0,  panelY: -H, W: W, H: H)
-                makePanel(InsightsView(vm: vm),      panelX: 0,  panelY:  H, W: W, H: H)
-                makePanel(RhythmView(vm: vm),        panelX: -W, panelY: 0,  W: W, H: H)
-                makePanel(MemoryOceanView(vm: vm),   panelX:  W, panelY: 0,  W: W, H: H)
+                // ── Crossfading backgrounds (stay fixed, never slide) ────
+                panelBackgrounds
+                    .ignoresSafeArea()
+
+                // ── Sliding panel content (transparent backgrounds) ──────
+                ZStack {
+                    makePanel(HomeView(vm: vm),        panelX: 0,  panelY: 0,  W: W, H: H)
+                    makePanel(SeedsView(vm: vm),        panelX: 0,  panelY: -H, W: W, H: H)
+                    makePanel(InsightsView(vm: vm),     panelX: 0,  panelY:  H, W: W, H: H)
+                    makePanel(RhythmView(vm: vm),       panelX: -W, panelY: 0,  W: W, H: H)
+                    makePanel(MemoryOceanView(vm: vm),  panelX:  W, panelY: 0,  W: W, H: H)
+                }
+                .clipped()
+                .gesture(panGesture(W: W, H: H))
             }
-            .clipped()
-            .gesture(panGesture(W: W, H: H))
         }
         .ignoresSafeArea()
+    }
+
+    // MARK: - Crossfading background layer
+    @ViewBuilder
+    private var panelBackgrounds: some View {
+        ZStack {
+            // Home — blue-teal
+            RadialGradient(
+                colors: [Color(hex: "1e3d52"), Color(hex: "152e3e"), Color(hex: "0e1e2c")],
+                center: UnitPoint(x: 0.5, y: -0.08),
+                startRadius: 0, endRadius: 600
+            )
+            .opacity(vm.currentPanel == .home ? 1 : 0)
+
+            // Seeds — deep green
+            RadialGradient(
+                colors: [Color(hex: "163828"), Color(hex: "0f2a20"), Color(hex: "091a12")],
+                center: UnitPoint(x: 0.5, y: 1.0),
+                startRadius: 0, endRadius: 600
+            )
+            .opacity(vm.currentPanel == .seeds ? 1 : 0)
+
+            // Insights — midnight blue
+            RadialGradient(
+                colors: [Color(hex: "1a2540"), Color(hex: "141c2e"), Color(hex: "0c1220")],
+                center: UnitPoint(x: 0.5, y: 0),
+                startRadius: 0, endRadius: 600
+            )
+            .opacity(vm.currentPanel == .insights ? 1 : 0)
+
+            // Rhythm — blue-purple
+            RadialGradient(
+                colors: [Color(hex: "1e3050"), Color(hex: "182438"), Color(hex: "0e1828")],
+                center: UnitPoint(x: 0.5, y: 0),
+                startRadius: 0, endRadius: 600
+            )
+            .opacity(vm.currentPanel == .rhythm ? 1 : 0)
+
+            // Memory — deep black-blue
+            LinearGradient(
+                colors: [Color(hex: "0e1e2c"), Color(hex: "091522"), Color(hex: "060f18")],
+                startPoint: .top, endPoint: .bottom
+            )
+            .opacity(vm.currentPanel == .memory ? 1 : 0)
+        }
+        .animation(.easeInOut(duration: 0.4), value: vm.currentPanel)
     }
 
     // MARK: - Panel builder
@@ -39,7 +88,6 @@ struct ContentView: View {
     // World shift to bring the active panel to (0,0), plus rubber-band drag
     private func totalOffset(panelX: CGFloat, panelY: CGFloat,
                               W: CGFloat, H: CGFloat) -> CGSize {
-        // world origin: the negative of the active panel's position
         let wx: CGFloat
         let wy: CGFloat
         switch vm.currentPanel {
@@ -50,9 +98,6 @@ struct ContentView: View {
         case .memory:   wx = -W;  wy =  0
         }
         let resist: CGFloat = vm.currentPanel == .home ? 0.45 : 0.2
-        // Positive drag: panels follow finger direction.
-        // Drag DOWN → Seeds (above, panelY = -H) slides down into view.
-        // Drag RIGHT → Rhythm (left, panelX = -W) slides right into view.
         return CGSize(width:  panelX + wx + drag.width  * resist,
                       height: panelY + wy + drag.height * resist)
     }
@@ -77,18 +122,18 @@ struct ContentView: View {
 
         if vm.currentPanel == .home {
             if abs(dy) > abs(dx) {
-                if dy >  threshold { vm.navigateTo(.seeds) }    // drag down → Seeds (above)
-                else if dy < -threshold { vm.navigateTo(.insights) } // drag up → Insights (below)
+                if dy >  threshold { vm.navigateTo(.seeds) }
+                else if dy < -threshold { vm.navigateTo(.insights) }
             } else {
-                if dx >  threshold { vm.navigateTo(.rhythm) }   // drag right → Rhythm (left panel)
-                else if dx < -threshold { vm.navigateTo(.memory) }  // drag left → Memory (right panel)
+                if dx >  threshold { vm.navigateTo(.rhythm) }
+                else if dx < -threshold { vm.navigateTo(.memory) }
             }
         } else {
             switch vm.currentPanel {
-            case .seeds:    if dy < -threshold { vm.navigateTo(.home) } // drag up to dismiss
-            case .insights: if dy >  threshold { vm.navigateTo(.home) } // drag down to dismiss
-            case .rhythm:   if dx < -threshold { vm.navigateTo(.home) } // drag left to dismiss
-            case .memory:   if dx >  threshold { vm.navigateTo(.home) } // drag right to dismiss
+            case .seeds:    if dy < -threshold { vm.navigateTo(.home) }
+            case .insights: if dy >  threshold { vm.navigateTo(.home) }
+            case .rhythm:   if dx < -threshold { vm.navigateTo(.home) }
+            case .memory:   if dx >  threshold { vm.navigateTo(.home) }
             default: break
             }
         }

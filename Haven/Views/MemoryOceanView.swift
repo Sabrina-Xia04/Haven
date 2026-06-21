@@ -6,17 +6,6 @@ struct MemoryOceanView: View {
 
     var body: some View {
         ZStack {
-            // Deep dark background — deepest dark in the palette
-            LinearGradient(
-                colors: [
-                    Color(hex: "0e1e2c"),
-                    Color(hex: "091522"),
-                    Color(hex: "060f18"),
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
 
             // Subtle light rays
             OceanLightRays()

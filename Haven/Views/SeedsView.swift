@@ -11,13 +11,6 @@ struct SeedsView: View {
 
     var body: some View {
         ZStack {
-            RadialGradient(
-                colors: [Color(hex: "163828"), Color(hex: "0f2a20"), Color(hex: "091a12")],
-                center: UnitPoint(x: 0.5, y: 1.0),
-                startRadius: 0,
-                endRadius: 600
-            )
-            .ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
                 // Header

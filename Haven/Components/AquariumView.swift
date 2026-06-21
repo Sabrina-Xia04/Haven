@@ -50,21 +50,12 @@ struct AquariumView: View {
                     onLongPress: { vm.jellyfishLongPressed() }
                 )
 
-                // Returning hug glow (stays inside globe)
+                // Returning: soft full-globe glow instead of a floating circle
                 if vm.isReturning {
                     Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [Color(hex: "cde8f6").opacity(0.7), Color.clear],
-                                center: UnitPoint(x: 0.35, y: 0.30),
-                                startRadius: 0, endRadius: 23
-                            )
-                        )
-                        .frame(width: 46, height: 46)
-                        .overlay(Circle().stroke(Color(hex: "cde8f6").opacity(0.4), lineWidth: 1))
-                        .shadow(color: Color(hex: "cde8f6").opacity(0.5), radius: 10)
-                        .offset(x: 70, y: 30)
-                        .transition(.scale.combined(with: .opacity))
+                        .fill(Color(hex: "cde8f6").opacity(0.07))
+                        .frame(width: 300, height: 300)
+                        .transition(.opacity)
                 }
             }
             .frame(width: 300, height: 300)

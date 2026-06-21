@@ -5,11 +5,11 @@ struct JellyfishView: View {
     var onTap: () -> Void
     var onLongPress: () -> Void
 
-    // Idle float
-    @State private var floatOffset: CGFloat = 0
-    @State private var swayOffset: CGFloat = 0
+    // Idle float — start at negative so animation is symmetric around 0
+    @State private var floatOffset: CGFloat = -11
+    @State private var swayOffset: CGFloat = -4
     @State private var breathScale: CGFloat = 1.0
-    @State private var tiltAngle: Double = 0
+    @State private var tiltAngle: Double = -2
 
     // Ambient glow — applied as .shadow, never touches image pixels
     @State private var glowOpacity: Double = 0.28
@@ -43,13 +43,13 @@ struct JellyfishView: View {
     // MARK: - Idle
     private func startIdleAnimations() {
         withAnimation(.easeInOut(duration: 5.0).repeatForever(autoreverses: true)) {
-            floatOffset = 22
+            floatOffset = 11   // -11 → 11, centered at 0
         }
         withAnimation(.easeInOut(duration: 6.8).repeatForever(autoreverses: true)) {
-            swayOffset = 9
+            swayOffset = 4     // -4 → 4, centered at 0
         }
         withAnimation(.easeInOut(duration: 6.8).repeatForever(autoreverses: true)) {
-            tiltAngle = 4
+            tiltAngle = 2      // -2 → 2, centered at 0
         }
         withAnimation(.easeInOut(duration: 4.0).repeatForever(autoreverses: true)) {
             breathScale = 1.05

@@ -6,12 +6,6 @@ struct InsightsView: View {
 
     var body: some View {
         ZStack {
-            RadialGradient(
-                colors: [Color(hex: "1a2540"), Color(hex: "141c2e"), Color(hex: "0c1220")],
-                center: UnitPoint(x: 0.5, y: 0),
-                startRadius: 0, endRadius: 600
-            )
-            .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // Back to aquarium

@@ -6,14 +6,6 @@ struct RhythmView: View {
 
     var body: some View {
         ZStack {
-            // Background — dark blue-purple matching cloud mascot theme
-            RadialGradient(
-                colors: [Color(hex: "1e3050"), Color(hex: "182438"), Color(hex: "0e1828")],
-                center: UnitPoint(x: 0.5, y: 0),
-                startRadius: 0,
-                endRadius: 600
-            )
-            .ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
                 // Back button

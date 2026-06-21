@@ -12,13 +12,6 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            // Background
-            RadialGradient(
-                colors: [Color(hex: "1e3d52"), Color(hex: "152e3e"), Color(hex: "0e1e2c")],
-                center: UnitPoint(x: 0.5, y: -0.08),
-                startRadius: 0, endRadius: 600
-            )
-            .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // Title
@@ -83,9 +76,11 @@ struct HomeView: View {
                 }
             }
 
-            // Direction hints
-            HintLabels(opacity: hintOpacity)
-                .allowsHitTesting(false)
+            // Direction hints — hide when returning message is visible
+            if !vm.isReturning {
+                HintLabels(opacity: hintOpacity)
+                    .allowsHitTesting(false)
+            }
 
             // Top buttons
             VStack {
