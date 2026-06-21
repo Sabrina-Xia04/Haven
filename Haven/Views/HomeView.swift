@@ -181,23 +181,31 @@ struct HintLabels: View {
                 .foregroundColor(Color(hex: "786c84").opacity(opacity))
                 .position(x: geo.size.width / 2, y: geo.size.height - 96)
 
-                HStack(spacing: 5) {
+                // Left: Rhythm — rotate entire label so it reads bottom-to-top
+                VStack(spacing: 3) {
                     Text("▸").font(.system(size: 12))
                     Text("Rhythm")
-                        .font(.system(size: 10, weight: .semibold)).kerning(2.5).textCase(.uppercase)
-                        .rotationEffect(.degrees(90)).frame(width: 14)
+                        .font(.system(size: 10, weight: .semibold))
+                        .kerning(2)
+                        .textCase(.uppercase)
                 }
                 .foregroundColor(Color(hex: "786c84").opacity(opacity))
-                .position(x: 22, y: geo.size.height / 2)
+                .fixedSize()
+                .rotationEffect(.degrees(-90))
+                .position(x: 16, y: geo.size.height / 2)
 
-                HStack(spacing: 5) {
+                // Right: Memory — rotate entire label so it reads top-to-bottom
+                VStack(spacing: 3) {
                     Text("Memory")
-                        .font(.system(size: 10, weight: .semibold)).kerning(2.5).textCase(.uppercase)
-                        .rotationEffect(.degrees(-90)).frame(width: 14)
+                        .font(.system(size: 10, weight: .semibold))
+                        .kerning(2)
+                        .textCase(.uppercase)
                     Text("◂").font(.system(size: 12))
                 }
                 .foregroundColor(Color(hex: "786c84").opacity(opacity))
-                .position(x: geo.size.width - 22, y: geo.size.height / 2)
+                .fixedSize()
+                .rotationEffect(.degrees(90))
+                .position(x: geo.size.width - 16, y: geo.size.height / 2)
             }
         }
     }

@@ -50,11 +50,11 @@ struct ContentView: View {
         case .memory:   wx = -W;  wy =  0
         }
         let resist: CGFloat = vm.currentPanel == .home ? 0.45 : 0.2
-        // Negate drag so panels peek in from the correct direction:
-        // dragging UP reveals the panel above (panelY = -H moves toward 0),
-        // dragging RIGHT reveals the panel to the right (panelX = +W moves toward 0), etc.
-        return CGSize(width:  panelX + wx - drag.width  * resist,
-                      height: panelY + wy - drag.height * resist)
+        // Positive drag: panels follow finger direction.
+        // Drag DOWN → Seeds (above, panelY = -H) slides down into view.
+        // Drag RIGHT → Rhythm (left, panelX = -W) slides right into view.
+        return CGSize(width:  panelX + wx + drag.width  * resist,
+                      height: panelY + wy + drag.height * resist)
     }
 
     // MARK: - Gesture
@@ -77,18 +77,18 @@ struct ContentView: View {
 
         if vm.currentPanel == .home {
             if abs(dy) > abs(dx) {
-                if dy < -threshold { vm.navigateTo(.seeds) }
-                else if dy > threshold { vm.navigateTo(.insights) }
+                if dy >  threshold { vm.navigateTo(.seeds) }    // drag down → Seeds (above)
+                else if dy < -threshold { vm.navigateTo(.insights) } // drag up → Insights (below)
             } else {
-                if dx >  threshold { vm.navigateTo(.memory) }
-                else if dx < -threshold { vm.navigateTo(.rhythm) }
+                if dx >  threshold { vm.navigateTo(.rhythm) }   // drag right → Rhythm (left panel)
+                else if dx < -threshold { vm.navigateTo(.memory) }  // drag left → Memory (right panel)
             }
         } else {
             switch vm.currentPanel {
-            case .seeds:    if dy >  threshold { vm.navigateTo(.home) }
-            case .insights: if dy < -threshold { vm.navigateTo(.home) }
-            case .rhythm:   if dx >  threshold { vm.navigateTo(.home) }
-            case .memory:   if dx < -threshold { vm.navigateTo(.home) }
+            case .seeds:    if dy < -threshold { vm.navigateTo(.home) } // drag up to dismiss
+            case .insights: if dy >  threshold { vm.navigateTo(.home) } // drag down to dismiss
+            case .rhythm:   if dx < -threshold { vm.navigateTo(.home) } // drag left to dismiss
+            case .memory:   if dx >  threshold { vm.navigateTo(.home) } // drag right to dismiss
             default: break
             }
         }
