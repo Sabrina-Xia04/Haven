@@ -76,8 +76,16 @@ struct MemoryOceanView: View {
                 Spacer()
             }
         }
-        .onAppear { withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) { appeared = true } }
-        .onDisappear { appeared = false }
+        .onChange(of: vm.currentPanel) { _, panel in
+            if panel == .memory {
+                appeared = false
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.05)) {
+                    appeared = true
+                }
+            } else {
+                appeared = false
+            }
+        }
     }
 }
 

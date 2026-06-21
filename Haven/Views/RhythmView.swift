@@ -79,8 +79,16 @@ struct RhythmView: View {
                 Spacer()
             }
         }
-        .onAppear { withAnimation { appeared = true } }
-        .onDisappear { appeared = false }
+        .onChange(of: vm.currentPanel) { _, panel in
+            if panel == .rhythm {
+                appeared = false
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.78).delay(0.05)) {
+                    appeared = true
+                }
+            } else {
+                appeared = false
+            }
+        }
     }
 }
 

@@ -80,15 +80,15 @@ struct ContentView: View {
                 if dy < -threshold { vm.navigateTo(.seeds) }
                 else if dy > threshold { vm.navigateTo(.insights) }
             } else {
-                if dx >  threshold { vm.navigateTo(.rhythm) }
-                else if dx < -threshold { vm.navigateTo(.memory) }
+                if dx >  threshold { vm.navigateTo(.memory) }
+                else if dx < -threshold { vm.navigateTo(.rhythm) }
             }
         } else {
             switch vm.currentPanel {
             case .seeds:    if dy >  threshold { vm.navigateTo(.home) }
             case .insights: if dy < -threshold { vm.navigateTo(.home) }
-            case .rhythm:   if dx < -threshold { vm.navigateTo(.home) }
-            case .memory:   if dx >  threshold { vm.navigateTo(.home) }
+            case .rhythm:   if dx >  threshold { vm.navigateTo(.home) }
+            case .memory:   if dx < -threshold { vm.navigateTo(.home) }
             default: break
             }
         }

@@ -74,8 +74,16 @@ struct SeedsView: View {
                 .padding(.bottom, 50)
             }
         }
-        .onAppear { withAnimation { appeared = true } }
-        .onDisappear { appeared = false }
+        .onChange(of: vm.currentPanel) { _, panel in
+            if panel == .seeds {
+                appeared = false
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.75).delay(0.05)) {
+                    appeared = true
+                }
+            } else {
+                appeared = false
+            }
+        }
     }
 
     private var subtitleText: String {

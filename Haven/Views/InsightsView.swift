@@ -42,11 +42,17 @@ struct InsightsView: View {
                 }
             }
         }
-        .onAppear { withAnimation { appeared = true } }
-        .onDisappear {
-            appeared = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                vm.backToAnswer()
+        .onChange(of: vm.currentPanel) { _, panel in
+            if panel == .insights {
+                appeared = false
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.05)) {
+                    appeared = true
+                }
+            } else {
+                appeared = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    vm.backToAnswer()
+                }
             }
         }
     }

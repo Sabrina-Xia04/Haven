@@ -8,7 +8,7 @@ struct HavenApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .preferredColorScheme(.light)
+                .preferredColorScheme(.dark)
                 .environmentObject(notifManager)
                 .task {
                     // Re-check permission status on each launch
