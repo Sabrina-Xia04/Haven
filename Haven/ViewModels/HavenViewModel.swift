@@ -11,27 +11,37 @@ class HavenViewModel: ObservableObject {
     @Published var isReturning: Bool = false
 
     // MARK: - Seeds
-    @Published var seeds: [Seed] = [
-        Seed(label: "Reply to Professor"),
-        Seed(label: "Continue Research Proposal"),
-        Seed(label: "Take a Walk"),
-        Seed(label: "Eat Something Warm"),
-    ]
+    @Published var seeds: [Seed] = [] {
+        didSet { saveSeeds() }
+    }
 
     // MARK: - Memory Ocean
-    let memoryItems: [MemoryItem] = [
-        MemoryItem(title: "Finals Week 2025",      subtitle: "Evening walks helped.\nYou recovered.",        size: 148, xFraction: 0.22, yFraction: 0.30, animDelay: 0.0),
-        MemoryItem(title: "Medication Adjustment", subtitle: "Afternoons worked better.",                     size: 158, xFraction: 0.68, yFraction: 0.42, animDelay: 1.2),
-        MemoryItem(title: "Hackathon Weekend",     subtitle: "Music helped.",                                 size: 138, xFraction: 0.26, yFraction: 0.62, animDelay: 2.1),
-        MemoryItem(title: "Hard Week",             subtitle: "Smaller goals helped.",                         size: 148, xFraction: 0.68, yFraction: 0.72, animDelay: 0.7),
-    ]
+    @Published var memoryItems: [MemoryItem] = []
 
-    // MARK: - Rhythm
-    let rhythmBlocks: [RhythmBlock] = [
-        RhythmBlock(tag: "Morning", title: "Start slow — that's okay", color: Color(hex: "f5dfc4")),
-        RhythmBlock(tag: "Afternoon", title: "Your clearest window",   color: Color(hex: "cbe9d6")),
-        RhythmBlock(tag: "Evening",  title: "Protect your rest",       color: Color(hex: "cfc4e8")),
-    ]
+    // MARK: - Rhythm (time-aware)
+    var rhythmBlocks: [RhythmBlock] {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return [
+            RhythmBlock(
+                tag: "Morning",
+                title: hour < 12 ? "Start slow — that's okay" : "Morning has passed",
+                color: Color(hex: "f5dfc4"),
+                isCurrent: hour >= 5 && hour < 12
+            ),
+            RhythmBlock(
+                tag: "Afternoon",
+                title: "Your clearest window",
+                color: Color(hex: "cbe9d6"),
+                isCurrent: hour >= 12 && hour < 17
+            ),
+            RhythmBlock(
+                tag: "Evening",
+                title: hour >= 21 ? "Rest is okay now" : "Protect your rest",
+                color: Color(hex: "cfc4e8"),
+                isCurrent: hour >= 17
+            ),
+        ]
+    }
 
     // MARK: - Insights
     @Published var insightState: InsightState = .unanswered
@@ -117,6 +127,14 @@ class HavenViewModel: ObservableObject {
 
     var currentInsight: InsightItem { insights[currentInsightIndex % insights.count] }
 
+    // MARK: - Init
+    init() {
+        seeds = Self.loadSeeds()
+        memoryItems = Self.loadMemories()
+        checkDailyReset()
+    }
+
+    // MARK: - Insight actions
     func selectAnswer(_ answer: InsightAnswer) {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             insightState = .pendingConfirm(answerId: answer.id)
@@ -184,7 +202,7 @@ class HavenViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Seed toggle
+    // MARK: - Seed actions
     func toggleSeed(_ seed: Seed) {
         if let idx = seeds.firstIndex(where: { $0.id == seed.id }) {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -193,8 +211,65 @@ class HavenViewModel: ObservableObject {
         }
     }
 
+    func deleteSeed(_ seed: Seed) {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            seeds.removeAll { $0.id == seed.id }
+        }
+    }
+
     // MARK: - Navigation helpers
     func navigateTo(_ panel: Panel) {
         currentPanel = panel
+    }
+
+    // MARK: - Memory actions
+    func addMemory(title: String, subtitle: String = "") {
+        let item = MemoryItem.make(title: title, subtitle: subtitle)
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            memoryItems.append(item)
+        }
+        saveMemories()
+    }
+
+    // MARK: - Daily reset
+    private func checkDailyReset() {
+        let today = Seed.today()
+        let lastReset = UserDefaults.standard.string(forKey: "haven_last_reset") ?? ""
+        guard today != lastReset else { return }
+        // New day: reset all done seeds
+        for i in seeds.indices { seeds[i].done = false }
+        UserDefaults.standard.set(today, forKey: "haven_last_reset")
+    }
+
+    // MARK: - Persistence: Seeds
+    private static let seedsKey = "haven_seeds_v2"
+
+    private static func loadSeeds() -> [Seed] {
+        guard let data = UserDefaults.standard.data(forKey: seedsKey),
+              let decoded = try? JSONDecoder().decode([Seed].self, from: data)
+        else {
+            return []    // fresh install → empty list
+        }
+        return decoded
+    }
+
+    private func saveSeeds() {
+        let data = try? JSONEncoder().encode(seeds)
+        UserDefaults.standard.set(data, forKey: Self.seedsKey)
+    }
+
+    // MARK: - Persistence: Memories
+    private static let memoriesKey = "haven_memories_v1"
+
+    private static func loadMemories() -> [MemoryItem] {
+        guard let data = UserDefaults.standard.data(forKey: memoriesKey),
+              let decoded = try? JSONDecoder().decode([MemoryItem].self, from: data)
+        else { return [] }
+        return decoded
+    }
+
+    private func saveMemories() {
+        let data = try? JSONEncoder().encode(memoryItems)
+        UserDefaults.standard.set(data, forKey: Self.memoriesKey)
     }
 }

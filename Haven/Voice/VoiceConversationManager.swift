@@ -310,10 +310,10 @@ class VoiceConversationManager: ObservableObject {
             vm?.addSeed(label: label)
         case .completeSeed(let label):
             vm?.completeSeed(label: label)
-        case .storeMemory:
-            break  // Could add to memory ocean in future
-        case .flagInsight:
-            break  // Could inject new InsightItem in future
+        case .storeMemory(let text):
+            vm?.addMemory(title: text, subtitle: "")
+        case .flagInsight(let pattern, _):
+            vm?.addMemory(title: "Pattern noticed", subtitle: pattern)
         case .navigate(let dest):
             switch dest {
             case "seeds":    vm?.navigateTo(.seeds)
@@ -327,9 +327,9 @@ class VoiceConversationManager: ObservableObject {
 
     private func applyDemoAction(_ action: DemoAction) {
         switch action {
-        case .addSeed(let label):   vm?.addSeed(label: label)
-        case .storeMemory:          break
-        case .flagInsight:          break
+        case .addSeed(let label):         vm?.addSeed(label: label)
+        case .storeMemory(let text):      vm?.addMemory(title: text, subtitle: "")
+        case .flagInsight(let text):      vm?.addMemory(title: "Pattern noticed", subtitle: text)
         }
     }
 }

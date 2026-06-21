@@ -3,12 +3,14 @@ import SwiftUI
 struct SeedsView: View {
     @ObservedObject var vm: HavenViewModel
     @State private var appeared = false
+    @State private var newSeedText = ""
+    @State private var isAdding = false
+    @FocusState private var addFieldFocused: Bool
 
     private var completedCount: Int { vm.seeds.filter(\.done).count }
 
     var body: some View {
         ZStack {
-            // Background — dark teal-green to contrast with light cloud mascot
             RadialGradient(
                 colors: [Color(hex: "163828"), Color(hex: "0f2a20"), Color(hex: "091a12")],
                 center: UnitPoint(x: 0.5, y: 1.0),
@@ -34,20 +36,68 @@ struct SeedsView: View {
                 .padding(.horizontal, 28)
 
                 // Seed cards
-                VStack(spacing: 12) {
-                    ForEach(vm.seeds) { seed in
-                        SeedCard(seed: seed) { vm.toggleSeed(seed) }
-                            .opacity(appeared ? 1 : 0)
-                            .offset(y: appeared ? 0 : 20)
-                            .animation(
-                                .spring(response: 0.4, dampingFraction: 0.75)
-                                    .delay(Double(vm.seeds.firstIndex(where: { $0.id == seed.id }) ?? 0) * 0.06),
-                                value: appeared
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        if vm.seeds.isEmpty && !isAdding {
+                            Text("No seeds yet.\nTap + to plant your first one.")
+                                .font(.custom("Georgia-Italic", size: 15))
+                                .foregroundColor(Color(hex: "7ecdb8").opacity(0.5))
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 32)
+                        }
+
+                        ForEach(vm.seeds) { seed in
+                            SeedCard(seed: seed, onTap: { vm.toggleSeed(seed) })
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        vm.deleteSeed(seed)
+                                    } label: {
+                                        Label("Delete seed", systemImage: "trash")
+                                    }
+                                }
+                                .opacity(appeared ? 1 : 0)
+                                .offset(y: appeared ? 0 : 20)
+                                .animation(
+                                    .spring(response: 0.4, dampingFraction: 0.75)
+                                        .delay(Double(vm.seeds.firstIndex(where: { $0.id == seed.id }) ?? 0) * 0.06),
+                                    value: appeared
+                                )
+                        }
+
+                        // Inline add field
+                        if isAdding {
+                            HStack(spacing: 12) {
+                                TextField("What do you want to plant?", text: $newSeedText)
+                                    .font(.system(size: 16))
+                                    .foregroundColor(Color(hex: "e6f4fc"))
+                                    .focused($addFieldFocused)
+                                    .submitLabel(.done)
+                                    .onSubmit { commitNewSeed() }
+
+                                Button(action: commitNewSeed) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 22))
+                                        .foregroundColor(Color(hex: "7ecdb8"))
+                                }
+                            }
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 22)
+                                    .fill(Color(hex: "7ecdb8").opacity(0.08))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 22)
+                                            .stroke(Color(hex: "7ecdb8").opacity(0.4), lineWidth: 1)
+                                    )
                             )
+                            .transition(.scale(scale: 0.95).combined(with: .opacity))
+                        }
                     }
+                    .padding(.horizontal, 28)
+                    .padding(.top, 22)
+                    .padding(.bottom, 20)
                 }
-                .padding(.horizontal, 28)
-                .padding(.top, 22)
 
                 Spacer()
 
@@ -59,18 +109,43 @@ struct SeedsView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 28)
 
-                // Return hint
-                Button(action: { vm.navigateTo(.home) }) {
-                    VStack(spacing: 2) {
-                        Text("▾").font(.system(size: 12))
-                        Text("aquarium")
-                            .font(.system(size: 10))
-                            .kerning(2)
-                            .textCase(.uppercase)
+                // Bottom bar: return hint + add button
+                HStack {
+                    Button(action: { vm.navigateTo(.home) }) {
+                        VStack(spacing: 2) {
+                            Text("▾").font(.system(size: 12))
+                            Text("aquarium")
+                                .font(.system(size: 10))
+                                .kerning(2)
+                                .textCase(.uppercase)
+                        }
+                        .foregroundColor(Color(hex: "8cbdd4").opacity(0.7))
                     }
-                    .foregroundColor(Color(hex: "8cbdd4").opacity(0.7))
+
+                    Spacer()
+
+                    // Add seed button
+                    Button(action: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            isAdding = true
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            addFieldFocused = true
+                        }
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color(hex: "7ecdb8").opacity(0.18))
+                                .frame(width: 38, height: 38)
+                            Image(systemName: "plus")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(Color(hex: "7ecdb8"))
+                        }
+                    }
+                    .opacity(isAdding ? 0 : 1)
                 }
                 .frame(maxWidth: .infinity)
+                .padding(.horizontal, 28)
                 .padding(.bottom, 50)
             }
         }
@@ -82,13 +157,34 @@ struct SeedsView: View {
                 }
             } else {
                 appeared = false
+                // dismiss add field when navigating away
+                withAnimation { isAdding = false }
+                newSeedText = ""
+            }
+        }
+        .onTapGesture {
+            if isAdding && newSeedText.isEmpty {
+                withAnimation { isAdding = false }
+                addFieldFocused = false
             }
         }
     }
 
+    private func commitNewSeed() {
+        let text = newSeedText.trimmingCharacters(in: .whitespaces)
+        if !text.isEmpty {
+            vm.addSeed(label: text)
+        }
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            newSeedText = ""
+            isAdding = false
+        }
+        addFieldFocused = false
+    }
+
     private var subtitleText: String {
         if completedCount == 0 { return "small things matter" }
-        if completedCount == vm.seeds.count { return "you did enough today" }
+        if completedCount == vm.seeds.count && !vm.seeds.isEmpty { return "you did enough today" }
         return "\(completedCount) of \(vm.seeds.count) — that's something"
     }
 

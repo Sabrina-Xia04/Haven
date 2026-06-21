@@ -102,18 +102,31 @@ struct RhythmCard: View {
             Circle()
                 .fill(block.color)
                 .frame(width: 36, height: 36)
-                .shadow(color: block.color.opacity(0.5), radius: 6)
+                .shadow(color: block.color.opacity(block.isCurrent ? 0.8 : 0.4), radius: block.isCurrent ? 10 : 6)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(block.tag)
-                    .font(.system(size: 11))
-                    .kerning(1.5)
-                    .textCase(.uppercase)
-                    .foregroundColor(Color(hex: "8cbdd4").opacity(0.75))
+                HStack(spacing: 6) {
+                    Text(block.tag)
+                        .font(.system(size: 11))
+                        .kerning(1.5)
+                        .textCase(.uppercase)
+                        .foregroundColor(Color(hex: "8cbdd4").opacity(0.75))
+
+                    if block.isCurrent {
+                        Text("NOW")
+                            .font(.system(size: 9, weight: .bold))
+                            .kerning(1)
+                            .foregroundColor(block.color.opacity(0.9))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(block.color.opacity(0.18))
+                            .clipShape(Capsule())
+                    }
+                }
 
                 Text(block.title)
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(Color(hex: "e6f4fc"))
+                    .font(.system(size: 17, weight: block.isCurrent ? .bold : .semibold))
+                    .foregroundColor(block.isCurrent ? Color(hex: "e6f4fc") : Color(hex: "e6f4fc").opacity(0.6))
             }
 
             Spacer()
@@ -122,10 +135,15 @@ struct RhythmCard: View {
         .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 22)
-                .fill(Color(hex: "c4e2f5").opacity(0.08))
+                .fill(block.isCurrent
+                      ? Color(hex: "c4e2f5").opacity(0.14)
+                      : Color(hex: "c4e2f5").opacity(0.06))
                 .overlay(
                     RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color(hex: "cde8f6").opacity(0.15), lineWidth: 1)
+                        .stroke(block.isCurrent
+                                ? block.color.opacity(0.35)
+                                : Color(hex: "cde8f6").opacity(0.12),
+                                lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.3), radius: 12, y: 5)
         )

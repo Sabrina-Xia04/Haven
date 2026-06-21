@@ -6,20 +6,28 @@ enum Panel: Equatable {
 }
 
 // MARK: - Seed (small task)
-struct Seed: Identifiable {
+struct Seed: Identifiable, Codable {
     let id: UUID
     var label: String
     var done: Bool
+    let createdDate: String   // "yyyy-MM-dd" — used for daily reset
 
     init(id: UUID = UUID(), label: String, done: Bool = false) {
         self.id = id
         self.label = label
         self.done = done
+        self.createdDate = Self.today()
+    }
+
+    static func today() -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f.string(from: Date())
     }
 }
 
 // MARK: - Memory Bubble
-struct MemoryItem: Identifiable {
+struct MemoryItem: Identifiable, Codable {
     let id: UUID
     let title: String
     let subtitle: String
@@ -34,6 +42,21 @@ struct MemoryItem: Identifiable {
         self.size = size; self.xFraction = xFraction; self.yFraction = yFraction
         self.animDelay = animDelay
     }
+
+    /// Create a new memory bubble with auto-assigned random layout
+    static func make(title: String, subtitle: String) -> MemoryItem {
+        let sizes: [CGFloat] = [128, 138, 148, 158]
+        let cols: [CGFloat] = [0.18, 0.28, 0.55, 0.68, 0.78]
+        let rows: [CGFloat] = [0.18, 0.30, 0.44, 0.58, 0.70, 0.82]
+        return MemoryItem(
+            title: title,
+            subtitle: subtitle,
+            size: sizes.randomElement()!,
+            xFraction: cols.randomElement()!,
+            yFraction: rows.randomElement()!,
+            animDelay: Double.random(in: 0...1.5)
+        )
+    }
 }
 
 // MARK: - Rhythm Block
@@ -42,9 +65,10 @@ struct RhythmBlock: Identifiable {
     let tag: String
     let title: String
     let color: Color
+    let isCurrent: Bool
 
-    init(id: UUID = UUID(), tag: String, title: String, color: Color) {
-        self.id = id; self.tag = tag; self.title = title; self.color = color
+    init(id: UUID = UUID(), tag: String, title: String, color: Color, isCurrent: Bool = false) {
+        self.id = id; self.tag = tag; self.title = title; self.color = color; self.isCurrent = isCurrent
     }
 }
 
