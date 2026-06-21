@@ -7,59 +7,61 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7A1064E907E5447690B092B1 /* HavenApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38116432A051440C91FCEB57 /* HavenApp.swift */; };
-		C776EA5CDB5241C49BAE4AAF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAF567456B74FDCABB6A616 /* ContentView.swift */; };
-		FADDECF2DDFA4AE3B6D4FC2A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FC4F34008E44EFA3D713CB /* HomeView.swift */; };
-		874DA2A0C79E405DB1C11A23 /* SeedsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48206FB9F5EA4BBAB6CF20B7 /* SeedsView.swift */; };
-		B56A341A8D0D4B069DB78908 /* MemoryOceanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB670A85C0495982C4B116 /* MemoryOceanView.swift */; };
-		D3EF35D7061A4FD3B102F4EB /* RhythmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155918E19860425CB5DD1CC2 /* RhythmView.swift */; };
+		0E6E663E894D4BA3AD478E83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BA39E1906684C40A97E52DC /* Assets.xcassets */; };
+		1C69882D9AB24C7FB5629BB7 /* VoiceConversationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15EE92FE90BC425889D4FB66 /* VoiceConversationOverlay.swift */; };
 		1E88535E83F84949AEEA0554 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB006805CAD42B692EDE4A7 /* InsightsView.swift */; };
-		C4EC1CA20070492196B8F885 /* HavenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29216502B643444BA68F96F4 /* HavenViewModel.swift */; };
+		2C9E2DE1F2434AA4BD8FE33E /* VoiceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B54BB5203144E86BCEC228E /* VoiceButton.swift */; };
+		380D60DB26774F4389D5020E /* HavenAgentOrchestrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893E01A760544AF0A76248AA /* HavenAgentOrchestrator.swift */; };
+		490269914C0748B4A4AC130C /* HavenConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0392D7A63554545B2B3C258 /* HavenConfig.swift */; };
 		50493F68990848518EA14F2B /* HavenModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 705916F0034245CD9B3767A3 /* HavenModels.swift */; };
 		558C8F92FF83497BA9518CE4 /* JellyfishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC99FB22E2A24B08ACBFC149 /* JellyfishView.swift */; };
-		E7FFB1E2E38147F885A8BA1A /* AquariumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0375BA569DA544D29AA96067 /* AquariumView.swift */; };
-		0E6E663E894D4BA3AD478E83 /* Assets.xcassets in Sources */ = {isa = PBXBuildFile; fileRef = 2BA39E1906684C40A97E52DC /* Assets.xcassets */; };
-		FD2EDB4C97A142E7A89BFC3A /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753FA62899734E73A89A2727 /* NotificationManager.swift */; };
-		F1B5E89803E54C1C923EAAC0 /* NotificationContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225475276E643FD952D12C4 /* NotificationContent.swift */; };
-		FC4C1CA0D7904E9A839F3621 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE59CDA8B1154E3BACB13500 /* NotificationSettingsView.swift */; };
-		490269914C0748B4A4AC130C /* HavenConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0392D7A63554545B2B3C258 /* HavenConfig.swift */; };
-		8CB979C0E0A64DF680EA0312 /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22398B56F98A41EDA09953E1 /* AudioCaptureService.swift */; };
-		DB6EA71803384C5D8C5BEBEE /* DeepgramSTTService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34049AB5CB44894AB5C60DA /* DeepgramSTTService.swift */; };
-		FD20CF2AA71A4379814E8EF5 /* DeepgramTTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8D17712436407AB90E5FB1 /* DeepgramTTSService.swift */; };
-		CBB6AEA1B695444999CCE0DD /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6183A455F4993A93A0E9F /* AudioPlayerService.swift */; };
-		380D60DB26774F4389D5020E /* HavenAgentOrchestrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893E01A760544AF0A76248AA /* HavenAgentOrchestrator.swift */; };
 		6CB6CF777AA545EBBC1962C9 /* VoiceConversationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47903ECD75A44F3D99129B1A /* VoiceConversationManager.swift */; };
-		1C69882D9AB24C7FB5629BB7 /* VoiceConversationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15EE92FE90BC425889D4FB66 /* VoiceConversationOverlay.swift */; };
-		2C9E2DE1F2434AA4BD8FE33E /* VoiceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B54BB5203144E86BCEC228E /* VoiceButton.swift */; };
+		7A1064E907E5447690B092B1 /* HavenApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38116432A051440C91FCEB57 /* HavenApp.swift */; };
+		874DA2A0C79E405DB1C11A23 /* SeedsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48206FB9F5EA4BBAB6CF20B7 /* SeedsView.swift */; };
+		8CB979C0E0A64DF680EA0312 /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22398B56F98A41EDA09953E1 /* AudioCaptureService.swift */; };
+		B56A341A8D0D4B069DB78908 /* MemoryOceanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB670A85C0495982C4B116 /* MemoryOceanView.swift */; };
+		C4EC1CA20070492196B8F885 /* HavenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29216502B643444BA68F96F4 /* HavenViewModel.swift */; };
+		C776EA5CDB5241C49BAE4AAF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AAF567456B74FDCABB6A616 /* ContentView.swift */; };
+		CBB6AEA1B695444999CCE0DD /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6183A455F4993A93A0E9F /* AudioPlayerService.swift */; };
+		D3EF35D7061A4FD3B102F4EB /* RhythmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155918E19860425CB5DD1CC2 /* RhythmView.swift */; };
+		DB6EA71803384C5D8C5BEBEE /* DeepgramSTTService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34049AB5CB44894AB5C60DA /* DeepgramSTTService.swift */; };
+		E7FFB1E2E38147F885A8BA1A /* AquariumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0375BA569DA544D29AA96067 /* AquariumView.swift */; };
+		F1B5E89803E54C1C923EAAC0 /* NotificationContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225475276E643FD952D12C4 /* NotificationContent.swift */; };
+		FADDECF2DDFA4AE3B6D4FC2A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FC4F34008E44EFA3D713CB /* HomeView.swift */; };
+		FC4C1CA0D7904E9A839F3621 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE59CDA8B1154E3BACB13500 /* NotificationSettingsView.swift */; };
+		FD20CF2AA71A4379814E8EF5 /* DeepgramTTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8D17712436407AB90E5FB1 /* DeepgramTTSService.swift */; };
+		FD2EDB4C97A142E7A89BFC3A /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753FA62899734E73A89A2727 /* NotificationManager.swift */; };
+		AA00SECRETS0FILE00DEADBEEF /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00SECRETS0REF000DEADBEEF /* Secrets.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		48B6F2E183004550936E7B3E /* Haven.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Haven.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		38116432A051440C91FCEB57 /* HavenApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenApp.swift; sourceTree = "<group>"; };
-		7AAF567456B74FDCABB6A616 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		44FC4F34008E44EFA3D713CB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		48206FB9F5EA4BBAB6CF20B7 /* SeedsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedsView.swift; sourceTree = "<group>"; };
-		6EFB670A85C0495982C4B116 /* MemoryOceanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryOceanView.swift; sourceTree = "<group>"; };
-		155918E19860425CB5DD1CC2 /* RhythmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RhythmView.swift; sourceTree = "<group>"; };
-		CEB006805CAD42B692EDE4A7 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
-		29216502B643444BA68F96F4 /* HavenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenViewModel.swift; sourceTree = "<group>"; };
-		705916F0034245CD9B3767A3 /* HavenModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenModels.swift; sourceTree = "<group>"; };
-		BC99FB22E2A24B08ACBFC149 /* JellyfishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfishView.swift; sourceTree = "<group>"; };
 		0375BA569DA544D29AA96067 /* AquariumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AquariumView.swift; sourceTree = "<group>"; };
-		2BA39E1906684C40A97E52DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		AA5E59C90D48470B8D07BECA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		753FA62899734E73A89A2727 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		2225475276E643FD952D12C4 /* NotificationContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationContent.swift; sourceTree = "<group>"; };
-		CE59CDA8B1154E3BACB13500 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
-		B0392D7A63554545B2B3C258 /* HavenConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenConfig.swift; sourceTree = "<group>"; };
-		22398B56F98A41EDA09953E1 /* AudioCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureService.swift; sourceTree = "<group>"; };
-		A34049AB5CB44894AB5C60DA /* DeepgramSTTService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramSTTService.swift; sourceTree = "<group>"; };
-		EB8D17712436407AB90E5FB1 /* DeepgramTTSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramTTSService.swift; sourceTree = "<group>"; };
-		D8F6183A455F4993A93A0E9F /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
-		893E01A760544AF0A76248AA /* HavenAgentOrchestrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenAgentOrchestrator.swift; sourceTree = "<group>"; };
-		47903ECD75A44F3D99129B1A /* VoiceConversationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceConversationManager.swift; sourceTree = "<group>"; };
+		155918E19860425CB5DD1CC2 /* RhythmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RhythmView.swift; sourceTree = "<group>"; };
 		15EE92FE90BC425889D4FB66 /* VoiceConversationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceConversationOverlay.swift; sourceTree = "<group>"; };
+		2225475276E643FD952D12C4 /* NotificationContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationContent.swift; sourceTree = "<group>"; };
+		22398B56F98A41EDA09953E1 /* AudioCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureService.swift; sourceTree = "<group>"; };
+		29216502B643444BA68F96F4 /* HavenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenViewModel.swift; sourceTree = "<group>"; };
+		2BA39E1906684C40A97E52DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		38116432A051440C91FCEB57 /* HavenApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenApp.swift; sourceTree = "<group>"; };
 		3B54BB5203144E86BCEC228E /* VoiceButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceButton.swift; sourceTree = "<group>"; };
+		44FC4F34008E44EFA3D713CB /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		47903ECD75A44F3D99129B1A /* VoiceConversationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceConversationManager.swift; sourceTree = "<group>"; };
+		48206FB9F5EA4BBAB6CF20B7 /* SeedsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedsView.swift; sourceTree = "<group>"; };
+		48B6F2E183004550936E7B3E /* Haven.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Haven.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EFB670A85C0495982C4B116 /* MemoryOceanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryOceanView.swift; sourceTree = "<group>"; };
+		705916F0034245CD9B3767A3 /* HavenModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenModels.swift; sourceTree = "<group>"; };
+		753FA62899734E73A89A2727 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		7AAF567456B74FDCABB6A616 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		893E01A760544AF0A76248AA /* HavenAgentOrchestrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenAgentOrchestrator.swift; sourceTree = "<group>"; };
+		A34049AB5CB44894AB5C60DA /* DeepgramSTTService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramSTTService.swift; sourceTree = "<group>"; };
+		AA5E59C90D48470B8D07BECA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B0392D7A63554545B2B3C258 /* HavenConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HavenConfig.swift; sourceTree = "<group>"; };
+		BB00SECRETS0REF000DEADBEEF /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
+		BC99FB22E2A24B08ACBFC149 /* JellyfishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfishView.swift; sourceTree = "<group>"; };
+		CE59CDA8B1154E3BACB13500 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
+		CEB006805CAD42B692EDE4A7 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		D8F6183A455F4993A93A0E9F /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
+		EB8D17712436407AB90E5FB1 /* DeepgramTTSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramTTSService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,37 +74,7 @@
 		};
 /* End PBXFrameworksBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		A1B2C3D4E5F60001DEADBEEF /* Create Secrets.swift if missing */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Create Secrets.swift if missing";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "SECRETS=\"${SRCROOT}/Haven/Config/Secrets.swift\"\nTEMPLATE=\"${SRCROOT}/Haven/Config/Secrets.template.swift\"\nif [ ! -f \"$SECRETS\" ]; then\n  cp \"$TEMPLATE\" \"$SECRETS\"\n  echo \"warning: Secrets.swift not found — created placeholder from template. App runs in demo mode.\"\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXGroup section */
-		52E1173857074C48BA38BFB4 = {
-			isa = PBXGroup;
-			children = (
-				49B0311C787E4ACF84AD151A /* Haven */,
-				3A14A5AD8B104FD88C5DB52E /* Products */,
-			);
-			sourceTree = "<group>";
-		};
 		3A14A5AD8B104FD88C5DB52E /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -111,43 +83,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D06BE23476694598A90B30F9 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				44FC4F34008E44EFA3D713CB /* HomeView.swift */,
-				48206FB9F5EA4BBAB6CF20B7 /* SeedsView.swift */,
-				6EFB670A85C0495982C4B116 /* MemoryOceanView.swift */,
-				155918E19860425CB5DD1CC2 /* RhythmView.swift */,
-				CEB006805CAD42B692EDE4A7 /* InsightsView.swift */,
-				CE59CDA8B1154E3BACB13500 /* NotificationSettingsView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
 		40599D0596A749ED8CE1CBCB /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
 				29216502B643444BA68F96F4 /* HavenViewModel.swift */,
 			);
 			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		B49F1441EE864B90A9D11C27 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				705916F0034245CD9B3767A3 /* HavenModels.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		C35A94E7F84343A5911F4A9F /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				BC99FB22E2A24B08ACBFC149 /* JellyfishView.swift */,
-				0375BA569DA544D29AA96067 /* AquariumView.swift */,
-				3B54BB5203144E86BCEC228E /* VoiceButton.swift */,
-			);
-			path = Components;
 			sourceTree = "<group>";
 		};
 		49B0311C787E4ACF84AD151A /* Haven */ = {
@@ -169,21 +110,38 @@
 			path = Haven;
 			sourceTree = "<group>";
 		};
-		DD787E5773E94F0E8F003AC6 /* Notifications */ = {
+		52E1173857074C48BA38BFB4 = {
 			isa = PBXGroup;
 			children = (
-				753FA62899734E73A89A2727 /* NotificationManager.swift */,
-				2225475276E643FD952D12C4 /* NotificationContent.swift */,
+				49B0311C787E4ACF84AD151A /* Haven */,
+				3A14A5AD8B104FD88C5DB52E /* Products */,
 			);
-			path = Notifications;
+			sourceTree = "<group>";
+		};
+		752E4F7D81A74E2BB8966FDC /* Voice */ = {
+			isa = PBXGroup;
+			children = (
+				47903ECD75A44F3D99129B1A /* VoiceConversationManager.swift */,
+				15EE92FE90BC425889D4FB66 /* VoiceConversationOverlay.swift */,
+			);
+			path = Voice;
 			sourceTree = "<group>";
 		};
 		8ACE5376A8DF4DBAA9614E73 /* Config */ = {
 			isa = PBXGroup;
 			children = (
 				B0392D7A63554545B2B3C258 /* HavenConfig.swift */,
+				BB00SECRETS0REF000DEADBEEF /* Secrets.swift */,
 			);
 			path = Config;
+			sourceTree = "<group>";
+		};
+		B49F1441EE864B90A9D11C27 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				705916F0034245CD9B3767A3 /* HavenModels.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		C252AB4F1D94461093429B41 /* Services */ = {
@@ -198,13 +156,36 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		752E4F7D81A74E2BB8966FDC /* Voice */ = {
+		C35A94E7F84343A5911F4A9F /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				47903ECD75A44F3D99129B1A /* VoiceConversationManager.swift */,
-				15EE92FE90BC425889D4FB66 /* VoiceConversationOverlay.swift */,
+				BC99FB22E2A24B08ACBFC149 /* JellyfishView.swift */,
+				0375BA569DA544D29AA96067 /* AquariumView.swift */,
+				3B54BB5203144E86BCEC228E /* VoiceButton.swift */,
 			);
-			path = Voice;
+			path = Components;
+			sourceTree = "<group>";
+		};
+		D06BE23476694598A90B30F9 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				44FC4F34008E44EFA3D713CB /* HomeView.swift */,
+				48206FB9F5EA4BBAB6CF20B7 /* SeedsView.swift */,
+				6EFB670A85C0495982C4B116 /* MemoryOceanView.swift */,
+				155918E19860425CB5DD1CC2 /* RhythmView.swift */,
+				CEB006805CAD42B692EDE4A7 /* InsightsView.swift */,
+				CE59CDA8B1154E3BACB13500 /* NotificationSettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DD787E5773E94F0E8F003AC6 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				753FA62899734E73A89A2727 /* NotificationManager.swift */,
+				2225475276E643FD952D12C4 /* NotificationContent.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -236,7 +217,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1530;
-				LastUpgradeCheck = 1530;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					E9B3F746191743819ACF1248 = {
 						CreatedOnToolsVersion = 15.3;
@@ -261,6 +242,40 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		78DE76014DD64347939E9667 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0E6E663E894D4BA3AD478E83 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A1B2C3D4E5F60001DEADBEEF /* Create Secrets.swift if missing */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Create Secrets.swift if missing";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Haven/Config/Secrets.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "SECRETS=\"${SRCROOT}/Haven/Config/Secrets.swift\"\nTEMPLATE=\"${SRCROOT}/Haven/Config/Secrets.template.swift\"\nif [ ! -f \"$SECRETS\" ]; then\n  cp \"$TEMPLATE\" \"$SECRETS\"\n  echo \"warning: Secrets.swift not found — created placeholder from template. App runs in demo mode.\"\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		9F98AD37580B4AD8BC4723B6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -281,6 +296,7 @@
 				F1B5E89803E54C1C923EAAC0 /* NotificationContent.swift in Sources */,
 				FC4C1CA0D7904E9A839F3621 /* NotificationSettingsView.swift in Sources */,
 				490269914C0748B4A4AC130C /* HavenConfig.swift in Sources */,
+				AA00SECRETS0FILE00DEADBEEF /* Secrets.swift in Sources */,
 				8CB979C0E0A64DF680EA0312 /* AudioCaptureService.swift in Sources */,
 				DB6EA71803384C5D8C5BEBEE /* DeepgramSTTService.swift in Sources */,
 				FD20CF2AA71A4379814E8EF5 /* DeepgramTTSService.swift in Sources */,
@@ -294,35 +310,52 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXResourcesBuildPhase section */
-		78DE76014DD64347939E9667 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0E6E663E894D4BA3AD478E83 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
 /* Begin XCBuildConfiguration section */
 		5DFA69659D6F4C1D9C5EC5EA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 			};
 			name = Debug;
@@ -332,14 +365,61 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7BE9BC9ACADB44B698716317 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Haven/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sabrinaxia.haven;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -347,37 +427,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Haven/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sabrinaxia.haven";
+				PRODUCT_BUNDLE_IDENTIFIER = com.sabrinaxia.haven;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
-		};
-		7BE9BC9ACADB44B698716317 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Haven/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sabrinaxia.haven";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
@@ -401,7 +464,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
 	};
 	rootObject = 572032CA3286408B829BFE25 /* Project object */;
 }
