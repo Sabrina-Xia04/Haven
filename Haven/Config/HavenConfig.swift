@@ -1,18 +1,18 @@
 import Foundation
 
 enum HavenConfig {
-    // ── Fill in your API keys ──────────────────────────────────────────────
-    static let deepgramAPIKey  = "YOUR_DEEPGRAM_API_KEY"
-    static let anthropicAPIKey = "YOUR_ANTHROPIC_API_KEY"
+    // Keys are loaded from Secrets.swift (gitignored — never committed)
+    static let deepgramAPIKey  = Secrets.deepgramAPIKey
+    static let anthropicAPIKey = Secrets.anthropicAPIKey
 
-    // ── Deepgram models ───────────────────────────────────────────────────
-    static let sttModel  = "nova-3"          // lowest latency STT
-    static let ttsVoice  = "aura-2-luna-en"  // warm, soft female voice
+    // Deepgram models
+    static let sttModel = "nova-3"          // lowest latency STT
+    static let ttsVoice = "aura-2-luna-en"  // warm, soft female voice
 
-    // ── Claude model ──────────────────────────────────────────────────────
+    // Claude model
     static let agentModel = "claude-haiku-4-5-20251001"  // fastest Claude
 
-    // ── Demo mode (auto-enabled when keys are placeholders) ───────────────
+    // Demo mode: auto-enabled when keys are still placeholders
     static var isDemoMode: Bool {
         deepgramAPIKey.hasPrefix("YOUR_") || anthropicAPIKey.hasPrefix("YOUR_")
     }

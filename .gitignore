@@ -1,24 +1,26 @@
-# Auto-sync log (generated at runtime)
-scripts/sync.log
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
 
 # Xcode
-.DS_Store
-.build/
 *.xcuserstate
 xcuserdata/
+*.xcworkspace/xcuserdata/
 DerivedData/
-*.moved-aside
-*.pbxuser
-*.mode1v3
-*.mode2v3
-*.perspectivev3
-*.xccheckout
-*.xcscmblueprint
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
 .swiftpm/
 
-# CocoaPods
-Pods/
-Podfile.lock
+# ⚠️  API keys — NEVER commit Secrets.swift
+Haven/Config/Secrets.swift
 
-# SPM
-.package.resolved
+# CocoaPods / SPM
+Pods/
+*.xcworkspace
+!default.xcworkspace
