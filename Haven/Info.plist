@@ -25,6 +25,8 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Haven listens so you can speak your thoughts instead of type them.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIRequiredDeviceCapabilities</key>

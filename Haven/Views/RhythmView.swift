@@ -6,9 +6,9 @@ struct RhythmView: View {
 
     var body: some View {
         ZStack {
-            // Warm background
+            // Background — dark blue-purple matching cloud mascot theme
             RadialGradient(
-                colors: [Color(hex: "f8efe4"), Color(hex: "f1e3d6"), Color(hex: "ecdcce")],
+                colors: [Color(hex: "1e3050"), Color(hex: "182438"), Color(hex: "0e1828")],
                 center: UnitPoint(x: 0.5, y: 0),
                 startRadius: 0,
                 endRadius: 600
@@ -25,11 +25,15 @@ struct RhythmView: View {
                             Text("▸")
                         }
                         .font(.system(size: 13))
-                        .foregroundColor(Color(hex: "7a6c84"))
+                        .foregroundColor(Color(hex: "8cbdd4"))
                         .padding(.horizontal, 15)
                         .padding(.vertical, 8)
-                        .background(Color.white.opacity(0.55))
+                        .background(Color(hex: "cde8f6").opacity(0.12))
                         .clipShape(RoundedRectangle(cornerRadius: 18))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(Color(hex: "cde8f6").opacity(0.18), lineWidth: 1)
+                        )
                     }
                     .padding(.trailing, 24)
                     .padding(.top, 68)
@@ -41,11 +45,11 @@ struct RhythmView: View {
                         .font(.system(size: 12, weight: .semibold))
                         .kerning(4)
                         .textCase(.uppercase)
-                        .foregroundColor(Color(hex: "786c84").opacity(0.7))
+                        .foregroundColor(Color(hex: "8cbdd4").opacity(0.85))
 
                     Text("a gentle forecast")
                         .font(.custom("Georgia-Italic", size: 20))
-                        .foregroundColor(Color(hex: "6a5d76"))
+                        .foregroundColor(Color(hex: "e6f4fc").opacity(0.9))
                 }
                 .padding(.horizontal, 28)
                 .padding(.top, 16)
@@ -97,11 +101,11 @@ struct RhythmCard: View {
                     .font(.system(size: 11))
                     .kerning(1.5)
                     .textCase(.uppercase)
-                    .foregroundColor(Color(hex: "786c84").opacity(0.6))
+                    .foregroundColor(Color(hex: "8cbdd4").opacity(0.75))
 
                 Text(block.title)
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(Color(hex: "5f546c"))
+                    .foregroundColor(Color(hex: "e6f4fc"))
             }
 
             Spacer()
@@ -110,8 +114,12 @@ struct RhythmCard: View {
         .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 22)
-                .fill(Color.white.opacity(0.6))
-                .shadow(color: Color(hex: "8c78a0").opacity(0.35), radius: 12, y: 5)
+                .fill(Color(hex: "c4e2f5").opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22)
+                        .stroke(Color(hex: "cde8f6").opacity(0.15), lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(0.3), radius: 12, y: 5)
         )
     }
 }
@@ -124,11 +132,11 @@ struct GuardianNote: View {
                 .font(.system(size: 11))
                 .kerning(1.5)
                 .textCase(.uppercase)
-                .foregroundColor(Color(hex: "786c84").opacity(0.65))
+                .foregroundColor(Color(hex: "8cbdd4").opacity(0.75))
 
             Text("Today looks a little heavier. Let's not rush.")
                 .font(.custom("Georgia-Italic", size: 18))
-                .foregroundColor(Color(hex: "5f546c"))
+                .foregroundColor(Color(hex: "e6f4fc"))
                 .lineSpacing(4)
         }
         .padding(.horizontal, 20)
@@ -138,14 +146,14 @@ struct GuardianNote: View {
             RoundedRectangle(cornerRadius: 22)
                 .fill(
                     LinearGradient(
-                        colors: [Color(hex: "cebdec").opacity(0.5), Color(hex: "bfe3d2").opacity(0.45)],
+                        colors: [Color(hex: "cde8f6").opacity(0.12), Color(hex: "7ecdb8").opacity(0.10)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color.white.opacity(0.6), lineWidth: 1)
+                        .stroke(Color(hex: "cde8f6").opacity(0.2), lineWidth: 1)
                 )
         )
     }

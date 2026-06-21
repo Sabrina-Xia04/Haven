@@ -187,7 +187,7 @@ class NotificationManager: NSObject, ObservableObject {
         }
     }
 
-    private func removeNotifications(withPrefix prefix: String) {
+    func removeNotifications(withPrefix prefix: String) {
         UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
             let ids = requests.map(\.identifier).filter { $0.hasPrefix(prefix) }
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)

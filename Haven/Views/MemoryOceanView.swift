@@ -6,12 +6,12 @@ struct MemoryOceanView: View {
 
     var body: some View {
         ZStack {
-            // Deep ocean background
+            // Deep dark background — deepest dark in the palette
             LinearGradient(
                 colors: [
-                    Color(hex: "f7e0cd").opacity(0.5),
-                    Color(hex: "6e8c8c").opacity(0.85),
-                    Color(hex: "4a686c").opacity(0.95),
+                    Color(hex: "0e1e2c"),
+                    Color(hex: "091522"),
+                    Color(hex: "060f18"),
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -20,7 +20,7 @@ struct MemoryOceanView: View {
 
             // Subtle light rays
             OceanLightRays()
-                .opacity(0.15)
+                .opacity(0.08)
 
             // Memory bubbles
             GeometryReader { geo in
@@ -43,14 +43,14 @@ struct MemoryOceanView: View {
                             Text("aquarium")
                         }
                         .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundColor(Color(hex: "cde8f6").opacity(0.9))
                         .padding(.horizontal, 15)
                         .padding(.vertical, 8)
-                        .background(Color.white.opacity(0.18))
+                        .background(Color(hex: "cde8f6").opacity(0.10))
                         .clipShape(RoundedRectangle(cornerRadius: 18))
                         .overlay(
                             RoundedRectangle(cornerRadius: 18)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                .stroke(Color(hex: "cde8f6").opacity(0.2), lineWidth: 1)
                         )
                     }
                     .padding(.leading, 24)
@@ -65,11 +65,11 @@ struct MemoryOceanView: View {
                         .font(.system(size: 12, weight: .semibold))
                         .kerning(4)
                         .textCase(.uppercase)
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(Color(hex: "8cbdd4").opacity(0.85))
 
                     Text("things I remember about you")
                         .font(.custom("Georgia-Italic", size: 16))
-                        .foregroundColor(.white.opacity(0.85))
+                        .foregroundColor(Color(hex: "e6f4fc").opacity(0.85))
                 }
                 .padding(.top, 8)
 
@@ -92,25 +92,25 @@ struct MemoryBubbleCard: View {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [Color.white.opacity(0.88), Color(hex: "bed4ea").opacity(0.55)],
+                        colors: [Color(hex: "c4e2f5").opacity(0.18), Color(hex: "0e2a40").opacity(0.75)],
                         center: UnitPoint(x: 0.35, y: 0.28),
                         startRadius: 0,
                         endRadius: item.size / 2
                     )
                 )
                 .frame(width: item.size, height: item.size)
-                .overlay(Circle().stroke(Color.white.opacity(0.55), lineWidth: 1))
-                .shadow(color: Color.black.opacity(0.18), radius: 16, y: 6)
+                .overlay(Circle().stroke(Color(hex: "cde8f6").opacity(0.28), lineWidth: 1))
+                .shadow(color: Color.black.opacity(0.35), radius: 16, y: 6)
 
             VStack(spacing: 4) {
                 Text(item.title)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Color(hex: "43585a"))
+                    .foregroundColor(Color(hex: "e6f4fc"))
                     .multilineTextAlignment(.center)
 
                 Text(item.subtitle)
                     .font(.custom("Georgia-Italic", size: 13))
-                    .foregroundColor(Color(hex: "5c7274"))
+                    .foregroundColor(Color(hex: "8cbdd4"))
                     .multilineTextAlignment(.center)
                     .lineSpacing(2)
             }
@@ -141,7 +141,7 @@ struct OceanLightRays: View {
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.white.opacity(0.6), Color.clear],
+                            colors: [Color(hex: "cde8f6").opacity(0.5), Color.clear],
                             startPoint: .top,
                             endPoint: .bottom
                         )

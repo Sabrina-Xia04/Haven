@@ -4,18 +4,19 @@ struct HomeView: View {
     @ObservedObject var vm: HavenViewModel
     @EnvironmentObject var notifManager: NotificationManager
 
-    // Hint pulse animation
     @State private var hintOpacity: Double = 0.28
     @State private var showingNotifSettings = false
+    @State private var showingVoice = false
+
+    @StateObject private var voiceManager = VoiceConversationManager()
 
     var body: some View {
         ZStack {
-            // Background gradient
+            // Background
             RadialGradient(
-                colors: [Color(hex: "f7f0e6"), Color(hex: "efe6ec"), Color(hex: "e2ecec")],
+                colors: [Color(hex: "1e3d52"), Color(hex: "152e3e"), Color(hex: "0e1e2c")],
                 center: UnitPoint(x: 0.5, y: -0.08),
-                startRadius: 0,
-                endRadius: 600
+                startRadius: 0, endRadius: 600
             )
             .ignoresSafeArea()
 
@@ -25,11 +26,11 @@ struct HomeView: View {
                     Text("HAVEN")
                         .font(.system(size: 13, weight: .semibold))
                         .kerning(6)
-                        .foregroundColor(Color(hex: "786c84").opacity(0.72))
+                        .foregroundColor(Color(hex: "8cbdd4").opacity(0.72))
 
                     Text(greetingText)
                         .font(.custom("Georgia-Italic", size: 20))
-                        .foregroundColor(Color(hex: "60566c").opacity(0.85))
+                        .foregroundColor(Color(hex: "cde8f6").opacity(0.85))
                 }
                 .padding(.top, 70)
 
@@ -40,12 +41,11 @@ struct HomeView: View {
                     .animation(.spring(response: 0.4, dampingFraction: 0.8), value: vm.memoryText)
                     .animation(.spring(response: 0.4, dampingFraction: 0.8), value: vm.isReturning)
 
-                // Returning message
                 if vm.isReturning {
                     VStack(spacing: 12) {
                         Text("It's okay. I'm just happy you're here.")
                             .font(.custom("Georgia-Italic", size: 21))
-                            .foregroundColor(Color(hex: "5f546c"))
+                            .foregroundColor(Color(hex: "e6f4fc"))
                             .multilineTextAlignment(.center)
                             .lineSpacing(6)
 
@@ -56,7 +56,7 @@ struct HomeView: View {
                                 .foregroundColor(Color(hex: "786c84").opacity(0.7))
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 6)
-                                .background(Color.white.opacity(0.55))
+                                .background(Color(hex: "cde8f6").opacity(0.15))
                                 .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
                     }
@@ -65,24 +65,34 @@ struct HomeView: View {
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                 } else {
                     Spacer()
-                    Text("tap me · hold me · drift anywhere")
-                        .font(.custom("Georgia-Italic", size: 13))
-                        .foregroundColor(Color(hex: "786c84").opacity(0.62))
-                        .padding(.bottom, 56)
+
+                    // Hint text + voice button stack
+                    VStack(spacing: 16) {
+                        Text("tap me · hold me · drift anywhere")
+                            .font(.custom("Georgia-Italic", size: 13))
+                            .foregroundColor(Color(hex: "786c84").opacity(0.62))
+
+                        // ── Voice button ──────────────────────────────────
+                        VoiceButton(isActive: showingVoice) {
+                            showingVoice = true
+                            voiceManager.vm = vm
+                            voiceManager.startConversation()
+                        }
+                    }
+                    .padding(.bottom, 52)
                 }
             }
 
-            // Direction hints (pulsing)
+            // Direction hints
             HintLabels(opacity: hintOpacity)
                 .allowsHitTesting(false)
 
-            // Top buttons row
+            // Top buttons
             VStack {
                 HStack {
-                    // Returning toggle (top-left)
                     Button(action: { vm.toggleReturning() }) {
                         Circle()
-                            .fill(Color.white.opacity(0.5))
+                            .fill(Color(hex: "cde8f6").opacity(0.18))
                             .frame(width: 30, height: 30)
                             .overlay(
                                 Text("◖")
@@ -95,17 +105,14 @@ struct HomeView: View {
 
                     Spacer()
 
-                    // Notification settings bell (top-right)
                     Button(action: { showingNotifSettings = true }) {
                         ZStack {
                             Circle()
-                                .fill(Color.white.opacity(0.5))
+                                .fill(Color(hex: "cde8f6").opacity(0.18))
                                 .frame(width: 30, height: 30)
-                            Image(systemName: notifManager.permissionGranted
-                                  ? "bell.fill" : "bell")
+                            Image(systemName: notifManager.permissionGranted ? "bell.fill" : "bell")
                                 .font(.system(size: 13))
                                 .foregroundColor(Color(hex: "60566c").opacity(0.7))
-                            // Red dot if permission not yet granted
                             if !notifManager.permissionGranted {
                                 Circle()
                                     .fill(Color(hex: "e8a0a0"))
@@ -119,6 +126,17 @@ struct HomeView: View {
                 }
                 Spacer()
             }
+
+            // ── Voice conversation overlay ─────────────────────────────
+            if showingVoice {
+                VoiceConversationOverlay(manager: voiceManager) {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        showingVoice = false
+                    }
+                }
+                .zIndex(10)
+                .transition(.opacity.combined(with: .scale(scale: 0.97)))
+            }
         }
         .sheet(isPresented: $showingNotifSettings) {
             NotificationSettingsView(notifManager: notifManager)
@@ -128,12 +146,13 @@ struct HomeView: View {
                 hintOpacity = 0.62
             }
         }
+        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: showingVoice)
     }
 
     private var greetingText: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<12: return "good morning"
+        case 5..<12:  return "good morning"
         case 12..<17: return "good afternoon"
         case 17..<21: return "good evening"
         default:      return "still here with you"
@@ -148,7 +167,6 @@ struct HintLabels: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                // Seeds - top
                 VStack(spacing: 2) {
                     Text("Seeds").font(.system(size: 10, weight: .semibold)).kerning(2.5).textCase(.uppercase)
                     Text("▾").font(.system(size: 12))
@@ -156,7 +174,6 @@ struct HintLabels: View {
                 .foregroundColor(Color(hex: "786c84").opacity(opacity))
                 .position(x: geo.size.width / 2, y: 128)
 
-                // Insights - bottom
                 VStack(spacing: 2) {
                     Text("▴").font(.system(size: 12))
                     Text("Insights").font(.system(size: 10, weight: .semibold)).kerning(2.5).textCase(.uppercase)
@@ -164,27 +181,19 @@ struct HintLabels: View {
                 .foregroundColor(Color(hex: "786c84").opacity(opacity))
                 .position(x: geo.size.width / 2, y: geo.size.height - 96)
 
-                // Rhythm - left
                 HStack(spacing: 5) {
                     Text("▸").font(.system(size: 12))
                     Text("Rhythm")
-                        .font(.system(size: 10, weight: .semibold))
-                        .kerning(2.5)
-                        .textCase(.uppercase)
-                        .rotationEffect(.degrees(90))
-                        .frame(width: 14)
+                        .font(.system(size: 10, weight: .semibold)).kerning(2.5).textCase(.uppercase)
+                        .rotationEffect(.degrees(90)).frame(width: 14)
                 }
                 .foregroundColor(Color(hex: "786c84").opacity(opacity))
                 .position(x: 22, y: geo.size.height / 2)
 
-                // Memory - right
                 HStack(spacing: 5) {
                     Text("Memory")
-                        .font(.system(size: 10, weight: .semibold))
-                        .kerning(2.5)
-                        .textCase(.uppercase)
-                        .rotationEffect(.degrees(-90))
-                        .frame(width: 14)
+                        .font(.system(size: 10, weight: .semibold)).kerning(2.5).textCase(.uppercase)
+                        .rotationEffect(.degrees(-90)).frame(width: 14)
                     Text("◂").font(.system(size: 12))
                 }
                 .foregroundColor(Color(hex: "786c84").opacity(opacity))
@@ -196,4 +205,5 @@ struct HintLabels: View {
 
 #Preview {
     HomeView(vm: HavenViewModel())
+        .environmentObject(NotificationManager.shared)
 }

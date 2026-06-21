@@ -7,109 +7,111 @@ struct AquariumView: View {
     @State private var particles: [ParticleDef] = []
 
     var body: some View {
+        // Outer ZStack is NOT clipped — speech bubbles can exceed the circle
         ZStack {
-            // Globe background
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            Color(hex: "fff7ec").opacity(0.96),
-                            Color(hex: "f4ceb0").opacity(0.32),
-                            Color(hex: "cebdec").opacity(0.40),
-                            Color(hex: "bed4ea").opacity(0.50),
-                        ],
-                        center: UnitPoint(x: 0.5, y: 0.16),
-                        startRadius: 0,
-                        endRadius: 170
-                    )
-                )
-                .frame(width: 300, height: 300)
-                .shadow(color: Color(hex: "9682aa").opacity(0.55), radius: 30, y: 12)
-                .overlay(
-                    Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 1)
-                )
-                .overlay(
-                    // Specular highlight
-                    Ellipse()
-                        .fill(
-                            RadialGradient(
-                                colors: [Color.white.opacity(0.9), Color.clear],
-                                center: .center,
-                                startRadius: 0,
-                                endRadius: 50
-                            )
-                        )
-                        .frame(width: 90, height: 55)
-                        .offset(x: -42, y: -80)
-                    , alignment: .center
-                )
-                .clipShape(Circle())
 
-            // Ambient particles (sparkles)
-            ForEach(particles) { p in
-                SparkleView(def: p)
-            }
-
-            // Rising bubbles
-            ForEach(bubbles) { b in
-                RisingBubble(def: b)
-            }
-
-            // Seaweed growths
-            ForEach(0..<5) { i in
-                SeaweedView()
-                    .offset(x: CGFloat(i) * 42 - 80, y: 110)
-            }
-
-            // Jellyfish
-            JellyfishView(
-                onTap: { vm.jellyfishTapped() },
-                onLongPress: { vm.jellyfishLongPressed() }
-            )
-            .offset(y: -10)
-
-            // Speech bubble
-            if let speech = vm.speechText {
-                SpeechBubble(text: speech)
-                    .offset(y: -120)
-                    .transition(.scale(scale: 0.6).combined(with: .opacity))
-            }
-
-            // Memory bubble (long-press)
-            if let mem = vm.memoryText {
-                MemoryBubble(text: mem)
-                    .offset(y: -130)
-                    .transition(.scale(scale: 0.6).combined(with: .opacity))
-            }
-
-            // Returning hug bubble
-            if vm.isReturning {
+            // ── Inner clipped globe ──────────────────────────────────────
+            ZStack {
+                // Globe background
                 Circle()
                     .fill(
                         RadialGradient(
-                            colors: [Color.white.opacity(0.95), Color(hex: "f4ceb0").opacity(0.45)],
-                            center: UnitPoint(x: 0.35, y: 0.30),
-                            startRadius: 0, endRadius: 23
+                            colors: [
+                                Color(hex: "1e4a62").opacity(0.96),
+                                Color(hex: "152e3e").opacity(0.92),
+                                Color(hex: "0e1e2c").opacity(0.95),
+                            ],
+                            center: UnitPoint(x: 0.5, y: 0.16),
+                            startRadius: 0,
+                            endRadius: 170
                         )
                     )
-                    .frame(width: 46, height: 46)
-                    .overlay(Circle().stroke(Color.white.opacity(0.7), lineWidth: 1))
-                    .shadow(color: Color(hex: "f4ceb0").opacity(0.6), radius: 10)
-                    .offset(x: 70, y: 30)
-                    .transition(.scale.combined(with: .opacity))
+                    .frame(width: 300, height: 300)
+                    .shadow(color: Color(hex: "0a1a28").opacity(0.7), radius: 30, y: 12)
+                    .overlay(
+                        Circle()
+                            .stroke(Color(hex: "cde8f6").opacity(0.18), lineWidth: 1)
+                    )
+                    .overlay(
+                        // Specular highlight
+                        Ellipse()
+                            .fill(
+                                RadialGradient(
+                                    colors: [Color.white.opacity(0.9), Color.clear],
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: 50
+                                )
+                            )
+                            .frame(width: 90, height: 55)
+                            .offset(x: -42, y: -80)
+                        , alignment: .center
+                    )
+                    .clipShape(Circle())
+
+                // Ambient particles (sparkles)
+                ForEach(particles) { p in
+                    SparkleView(def: p)
+                }
+
+                // Rising bubbles
+                ForEach(bubbles) { b in
+                    RisingBubble(def: b)
+                }
+
+                // Cloud mascot — no color changes, only animation
+                JellyfishView(
+                    onTap: { vm.jellyfishTapped() },
+                    onLongPress: { vm.jellyfishLongPressed() }
+                )
+                .offset(y: -10)
+
+                // Returning hug glow (stays inside globe)
+                if vm.isReturning {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [Color(hex: "cde8f6").opacity(0.7), Color.clear],
+                                center: UnitPoint(x: 0.35, y: 0.30),
+                                startRadius: 0, endRadius: 23
+                            )
+                        )
+                        .frame(width: 46, height: 46)
+                        .overlay(Circle().stroke(Color(hex: "cde8f6").opacity(0.4), lineWidth: 1))
+                        .shadow(color: Color(hex: "cde8f6").opacity(0.5), radius: 10)
+                        .offset(x: 70, y: 30)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+            .frame(width: 300, height: 300)
+            .clipShape(Circle())
+
+            // ── Speech bubble — outside clip, floats above ─────────────
+            if let speech = vm.speechText {
+                SpeechBubble(text: speech)
+                    .offset(y: -200)
+                    .transition(.scale(scale: 0.7).combined(with: .opacity))
+                    .zIndex(10)
+            }
+
+            // ── Memory bubble — outside clip, floats above ─────────────
+            if let mem = vm.memoryText {
+                MemoryBubble(text: mem)
+                    .offset(y: -210)
+                    .transition(.scale(scale: 0.7).combined(with: .opacity))
+                    .zIndex(10)
             }
         }
-        .frame(width: 300, height: 300)
-        .clipShape(Circle())
+        // Tall enough frame so speech bubbles above the globe are fully visible
+        .frame(width: 320, height: 440)
         .onAppear { generateAmbient() }
     }
 
     private func generateAmbient() {
         let tints: [Color] = [
-            Color(hex: "ffecf2").opacity(0.95),
-            Color(hex: "cebdec").opacity(0.95),
-            Color(hex: "bfe3d2").opacity(0.95),
+            Color(hex: "cde8f6").opacity(0.95),
+            Color(hex: "8cbdd4").opacity(0.90),
+            Color(hex: "7ecdb8").opacity(0.90),
             Color(hex: "bed4ea").opacity(0.95),
         ]
         particles = (0..<16).map { i in
@@ -199,39 +201,6 @@ struct RisingBubble: View {
     }
 }
 
-// MARK: - Seaweed
-struct SeaweedView: View {
-    @State private var sway: Double = -12
-
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            RoundedRectangle(cornerRadius: 3)
-                .fill(LinearGradient(colors: [Color(hex: "bfe3d2"), Color(hex: "9fcdbb")], startPoint: .top, endPoint: .bottom))
-                .frame(width: 6, height: 14)
-
-            // Left leaf
-            Ellipse()
-                .fill(Color(hex: "bfe3d2"))
-                .frame(width: 11, height: 8)
-                .rotationEffect(.degrees(-20))
-                .offset(x: -5, y: -9)
-
-            // Right leaf
-            Ellipse()
-                .fill(Color(hex: "cdebdb"))
-                .frame(width: 11, height: 8)
-                .rotationEffect(.degrees(20))
-                .offset(x: 1, y: -11)
-        }
-        .rotationEffect(.degrees(sway), anchor: .bottom)
-        .onAppear {
-            withAnimation(.easeInOut(duration: 3.8).repeatForever(autoreverses: true)) {
-                sway = 12
-            }
-        }
-    }
-}
-
 // MARK: - Speech Bubble
 struct SpeechBubble: View {
     let text: String
@@ -241,17 +210,21 @@ struct SpeechBubble: View {
             VStack(spacing: 0) {
                 Text(text)
                     .font(.custom("Georgia-Italic", size: 17))
-                    .foregroundColor(Color(hex: "5f546c"))
+                    .foregroundColor(Color(hex: "e6f4fc"))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 18)
                     .padding(.vertical, 9)
-                    .background(Color.white.opacity(0.92))
+                    .background(Color(hex: "1a3a52").opacity(0.95))
                     .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .shadow(color: Color(hex: "8c78a0").opacity(0.6), radius: 11, y: 4)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color(hex: "cde8f6").opacity(0.3), lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.5), radius: 12, y: 4)
 
                 // Tail
                 Triangle()
-                    .fill(Color.white.opacity(0.92))
+                    .fill(Color(hex: "1a3a52").opacity(0.95))
                     .frame(width: 12, height: 8)
             }
         }
@@ -265,26 +238,20 @@ struct MemoryBubble: View {
     var body: some View {
         Text(text)
             .font(.custom("Georgia-Italic", size: 16))
-            .foregroundColor(Color(hex: "5a4f68"))
+            .foregroundColor(Color(hex: "e6f4fc"))
             .multilineTextAlignment(.center)
             .lineSpacing(4)
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 26)
-                    .fill(
-                        RadialGradient(
-                            colors: [Color.white.opacity(0.95), Color(hex: "cebdec").opacity(0.55)],
-                            center: UnitPoint(x: 0.5, y: 0.2),
-                            startRadius: 0, endRadius: 80
-                        )
-                    )
+                    .fill(Color(hex: "1a3a52").opacity(0.92))
                     .overlay(
                         RoundedRectangle(cornerRadius: 26)
-                            .stroke(Color.white.opacity(0.7), lineWidth: 1)
+                            .stroke(Color(hex: "cde8f6").opacity(0.28), lineWidth: 1)
                     )
             )
-            .shadow(color: Color(hex: "9678aa").opacity(0.6), radius: 15, y: 6)
+            .shadow(color: Color.black.opacity(0.5), radius: 15, y: 6)
     }
 }
 

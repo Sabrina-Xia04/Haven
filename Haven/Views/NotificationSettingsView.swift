@@ -350,16 +350,6 @@ struct WatchNote: View {
     }
 }
 
-// MARK: - Make removeNotifications accessible from View
-extension NotificationManager {
-    func removeNotifications(withPrefix prefix: String) {
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            let ids = requests.map(\.identifier).filter { $0.hasPrefix(prefix) }
-            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
-        }
-    }
-}
-
 #Preview {
     NotificationSettingsView(notifManager: NotificationManager.shared)
 }

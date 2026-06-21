@@ -8,9 +8,9 @@ struct SeedsView: View {
 
     var body: some View {
         ZStack {
-            // Background
+            // Background — dark teal-green to contrast with light cloud mascot
             RadialGradient(
-                colors: [Color(hex: "eef3e9"), Color(hex: "e6efe5"), Color(hex: "e0ece8")],
+                colors: [Color(hex: "163828"), Color(hex: "0f2a20"), Color(hex: "091a12")],
                 center: UnitPoint(x: 0.5, y: 1.0),
                 startRadius: 0,
                 endRadius: 600
@@ -24,11 +24,11 @@ struct SeedsView: View {
                         .font(.system(size: 12, weight: .semibold))
                         .kerning(4)
                         .textCase(.uppercase)
-                        .foregroundColor(Color(hex: "6e7c6c").opacity(0.75))
+                        .foregroundColor(Color(hex: "7ecdb8").opacity(0.85))
 
                     Text(subtitleText)
                         .font(.custom("Georgia-Italic", size: 20))
-                        .foregroundColor(Color(hex: "5d6a58"))
+                        .foregroundColor(Color(hex: "e6f4fc").opacity(0.9))
                 }
                 .padding(.top, 96)
                 .padding(.horizontal, 28)
@@ -54,7 +54,7 @@ struct SeedsView: View {
                 // Footer
                 Text(footerText)
                     .font(.custom("Georgia-Italic", size: 13))
-                    .foregroundColor(Color(hex: "6e7c6c").opacity(0.8))
+                    .foregroundColor(Color(hex: "8cbdd4").opacity(0.8))
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 28)
@@ -68,7 +68,7 @@ struct SeedsView: View {
                             .kerning(2)
                             .textCase(.uppercase)
                     }
-                    .foregroundColor(Color(hex: "6e7c6c").opacity(0.7))
+                    .foregroundColor(Color(hex: "8cbdd4").opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.bottom, 50)
@@ -102,17 +102,17 @@ struct SeedCard: View {
                 // Seaweed icon
                 ZStack {
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(LinearGradient(colors: [Color(hex: "a9d4be"), Color(hex: "8bc0a8")], startPoint: .top, endPoint: .bottom))
+                        .fill(LinearGradient(colors: [Color(hex: "7ecdb8"), Color(hex: "5db8a0")], startPoint: .top, endPoint: .bottom))
                         .frame(width: 5, height: 13)
 
                     Ellipse()
-                        .fill(Color(hex: "a9d4be"))
+                        .fill(Color(hex: "7ecdb8"))
                         .frame(width: 10, height: 7)
                         .rotationEffect(.degrees(-22))
                         .offset(x: -4, y: -8)
 
                     Ellipse()
-                        .fill(Color(hex: "c4e6d4"))
+                        .fill(Color(hex: "a8e4d4"))
                         .frame(width: 10, height: 7)
                         .rotationEffect(.degrees(22))
                         .offset(x: 1, y: -10)
@@ -121,19 +121,19 @@ struct SeedCard: View {
 
                 Text(seed.label)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(Color(hex: "54614f"))
+                    .foregroundColor(Color(hex: "e6f4fc"))
 
                 Spacer()
 
                 // Checkmark
                 ZStack {
                     Circle()
-                        .stroke(Color(hex: "a9d4be").opacity(seed.done ? 0 : 0.6), lineWidth: 1.5)
+                        .stroke(Color(hex: "7ecdb8").opacity(seed.done ? 0 : 0.6), lineWidth: 1.5)
                         .frame(width: 26, height: 26)
 
                     if seed.done {
                         Circle()
-                            .fill(Color(hex: "a9d4be").opacity(0.85))
+                            .fill(Color(hex: "7ecdb8").opacity(0.85))
                             .frame(width: 26, height: 26)
                         Text("✓")
                             .font(.system(size: 13, weight: .semibold))
@@ -145,12 +145,16 @@ struct SeedCard: View {
             .padding(.vertical, 16)
             .background(
                 RoundedRectangle(cornerRadius: 22)
-                    .fill(Color.white.opacity(seed.done ? 0.4 : 0.6))
-                    .shadow(color: Color(hex: "8c78a0").opacity(0.35), radius: 12, y: 5)
+                    .fill(Color(hex: "7ecdb8").opacity(seed.done ? 0.07 : 0.12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22)
+                            .stroke(Color(hex: "7ecdb8").opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.3), radius: 12, y: 5)
             )
         }
         .buttonStyle(.plain)
-        .opacity(seed.done ? 0.65 : 1.0)
+        .opacity(seed.done ? 0.55 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: seed.done)
     }
 }
