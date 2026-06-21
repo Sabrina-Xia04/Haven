@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+    <key>Label</key>
+    <string>com.haven.github-sync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/xiaboyang/Documents/Haven/scripts/sync_github.sh</string>
+    </array>
+
+    <!-- Run every 2 hours -->
+    <key>StartInterval</key>
+    <integer>7200</integer>
+
+    <!-- Also run once right after login -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Keep trying if it fails -->
+    <key>KeepAlive</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/xiaboyang/Documents/Haven/scripts/sync.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/xiaboyang/Documents/Haven/scripts/sync.log</string>
+
+    <!-- Need PATH so git + ssh are found -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+        <key>HOME</key>
+        <string>/Users/xiaboyang</string>
+        <key>SSH_AUTH_SOCK</key>
+        <string>/private/tmp/com.apple.launchd.1/Listeners</string>
+    </dict>
+
+</dict>
+</plist>

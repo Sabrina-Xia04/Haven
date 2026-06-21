@@ -1,0 +1,24 @@
+# Auto-sync log (generated at runtime)
+scripts/sync.log
+
+# Xcode
+.DS_Store
+.build/
+*.xcuserstate
+xcuserdata/
+DerivedData/
+*.moved-aside
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xccheckout
+*.xcscmblueprint
+.swiftpm/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# SPM
+.package.resolved
