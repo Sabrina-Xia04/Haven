@@ -72,6 +72,28 @@
 		};
 /* End PBXFrameworksBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		A1B2C3D4E5F60001DEADBEEF /* Create Secrets.swift if missing */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Create Secrets.swift if missing";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "SECRETS=\"${SRCROOT}/Haven/Config/Secrets.swift\"\nTEMPLATE=\"${SRCROOT}/Haven/Config/Secrets.template.swift\"\nif [ ! -f \"$SECRETS\" ]; then\n  cp \"$TEMPLATE\" \"$SECRETS\"\n  echo \"warning: Secrets.swift not found — created placeholder from template. App runs in demo mode.\"\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXGroup section */
 		52E1173857074C48BA38BFB4 = {
 			isa = PBXGroup;
@@ -192,6 +214,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AC4F6BD3420D4D6B8293068A /* Build configuration list for PBXNativeTarget "Haven" */;
 			buildPhases = (
+				A1B2C3D4E5F60001DEADBEEF /* Create Secrets.swift if missing */,
 				9F98AD37580B4AD8BC4723B6 /* Sources */,
 				78DE76014DD64347939E9667 /* Resources */,
 				83EBD94A722549519FD348C5 /* Frameworks */,

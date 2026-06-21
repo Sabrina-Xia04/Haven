@@ -58,12 +58,15 @@ class DeepgramSTTService: NSObject, ObservableObject {
     private func receive() {
         wsTask?.receive { [weak self] result in
             guard let self else { return }
-            switch result {
-            case .success(let msg):
-                if case .string(let json) = msg { self.parse(json) }
-                self.receive()
-            case .failure:
-                self.connected = false
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                switch result {
+                case .success(let msg):
+                    if case .string(let json) = msg { self.parse(json) }
+                    self.receive()
+                case .failure:
+                    self.connected = false
+                }
             }
         }
     }
