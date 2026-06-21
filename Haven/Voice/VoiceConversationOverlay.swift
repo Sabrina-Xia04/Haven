@@ -7,31 +7,18 @@ struct VoiceConversationOverlay: View {
 
     var body: some View {
         ZStack {
-            // Background — deep blur
-            Color(hex: "050e18").opacity(0.94)
+            Color(hex: "050e18").opacity(0.96)
                 .ignoresSafeArea()
-                .onTapGesture { } // absorb taps
 
             VStack(spacing: 0) {
-                // Top bar
                 topBar
-
-                Spacer()
-
-                // Cloud + waveform
+                Spacer(minLength: 0)
                 cloudSection
-
-                Spacer()
-
-                // Text area
-                textSection
-
-                Spacer(minLength: 28)
-
-                // Agent chips
-                agentChips
-
-                Spacer(minLength: 36)
+                Spacer(minLength: 0)
+                transcriptSection
+                Spacer(minLength: 0)
+                bottomSection
+                Spacer(minLength: 48)
             }
         }
         .transition(.opacity.combined(with: .scale(scale: 0.96)))
@@ -40,7 +27,6 @@ struct VoiceConversationOverlay: View {
     // MARK: - Top bar
     private var topBar: some View {
         HStack {
-            // Phase label
             Text(phaseLabel)
                 .font(.system(size: 11, weight: .semibold))
                 .kerning(2)
@@ -49,7 +35,6 @@ struct VoiceConversationOverlay: View {
 
             Spacer()
 
-            // Close
             Button(action: {
                 manager.endConversation()
                 onDismiss()
@@ -75,25 +60,27 @@ struct VoiceConversationOverlay: View {
         }
     }
 
-    // MARK: - Cloud + waveform
+    // MARK: - Cloud
     private var cloudSection: some View {
         ZStack {
-            // Waveform ring
             WaveformRing(level: manager.audioLevel,
                          isListening: manager.phase == .listening)
 
-            // Cloud mascot — glow reacts to phase
             Image("HavenMascot")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 100, height: 100)
-                .shadow(color: cloudGlow.opacity(cloudGlowOpacity),
-                        radius: cloudGlowRadius)
+                .frame(width: 90, height: 90)
+                .shadow(color: cloudGlow.opacity(cloudGlowOpacity), radius: cloudGlowRadius)
                 .scaleEffect(manager.phase == .speaking ? 1.04 : 1.0)
-                .animation(.easeInOut(duration: 0.6).repeatWhileTrue(
-                    manager.phase == .speaking), value: manager.phase)
+                .animation(
+                    manager.phase == .speaking
+                        ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true)
+                        : .default,
+                    value: manager.phase
+                )
         }
-        .frame(width: 200, height: 200)
+        .frame(width: 190, height: 190)
+        .padding(.vertical, 8)
     }
 
     private var cloudGlow: Color { Color(hex: "cde8f6") }
@@ -112,54 +99,144 @@ struct VoiceConversationOverlay: View {
         }
     }
 
-    // MARK: - Text area
-    private var textSection: some View {
-        VStack(spacing: 16) {
-            // User transcript
-            if !manager.transcript.isEmpty {
-                Text(manager.transcript)
-                    .font(.system(size: 15))
-                    .foregroundColor(Color(hex: "8cbdd4").opacity(0.8))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(3)
-                    .padding(.horizontal, 36)
-                    .transition(.opacity)
+    // MARK: - Transcript / response text
+    private var transcriptSection: some View {
+        ZStack {
+            // User's live transcript — large, prominent
+            if manager.phase == .listening || manager.phase == .thinking {
+                VStack(spacing: 10) {
+                    if !manager.transcript.isEmpty {
+                        Text(manager.transcript)
+                            .font(.system(size: 22, weight: .light))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(6)
+                            .padding(.horizontal, 32)
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    } else if manager.phase == .listening {
+                        Text("say something…")
+                            .font(.custom("Georgia-Italic", size: 18))
+                            .foregroundColor(Color(hex: "8cbdd4").opacity(0.4))
+                            .transition(.opacity)
+                    }
+                }
             }
 
-            // Haven's response
-            if !manager.havenResponse.isEmpty {
-                Text(manager.havenResponse)
-                    .font(.custom("Georgia-Italic", size: 18))
-                    .foregroundColor(Color(hex: "e6f4fc"))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(5)
-                    .padding(.horizontal, 28)
-                    .transition(.opacity)
-            }
-
-            // Thinking dots
-            if manager.phase == .thinking && manager.havenResponse.isEmpty {
-                ThinkingDots()
+            // Haven's streamed response
+            if manager.phase == .speaking || manager.phase == .thinking {
+                VStack(spacing: 14) {
+                    if !manager.havenResponse.isEmpty {
+                        Text(manager.havenResponse)
+                            .font(.custom("Georgia-Italic", size: 20))
+                            .foregroundColor(Color(hex: "e6f4fc"))
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(6)
+                            .padding(.horizontal, 28)
+                            .transition(.opacity)
+                    } else if manager.phase == .thinking {
+                        ThinkingDots()
+                    }
+                }
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: manager.havenResponse)
+        .frame(minHeight: 120)
         .animation(.easeInOut(duration: 0.25), value: manager.transcript)
+        .animation(.easeInOut(duration: 0.3),  value: manager.havenResponse)
+        .animation(.easeInOut(duration: 0.2),  value: manager.phase)
     }
 
-    // MARK: - Agent chips
-    private var agentChips: some View {
-        HStack(spacing: 8) {
-            ForEach(manager.recentAgents, id: \.rawValue) { ag in
-                AgentChip(agent: ag)
-                    .transition(.scale(scale: 0.7).combined(with: .opacity))
+    // MARK: - Bottom: send button (listening) or agent chips (response)
+    private var bottomSection: some View {
+        ZStack {
+            // Send / done button — only while listening
+            if manager.phase == .listening {
+                VStack(spacing: 12) {
+                    // Mic pulse indicator
+                    MicPulse(level: manager.audioLevel)
+
+                    Button(action: { manager.sendCurrentTranscript() }) {
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    manager.transcript.isEmpty
+                                        ? Color(hex: "cde8f6").opacity(0.10)
+                                        : Color(hex: "7ecdb8").opacity(0.28)
+                                )
+                                .frame(width: 64, height: 64)
+                                .overlay(
+                                    Circle().stroke(
+                                        manager.transcript.isEmpty
+                                            ? Color(hex: "cde8f6").opacity(0.18)
+                                            : Color(hex: "7ecdb8").opacity(0.6),
+                                        lineWidth: 1.5
+                                    )
+                                )
+
+                            Image(systemName: "arrow.up")
+                                .font(.system(size: 22, weight: .semibold))
+                                .foregroundColor(
+                                    manager.transcript.isEmpty
+                                        ? Color(hex: "8cbdd4").opacity(0.4)
+                                        : Color(hex: "e6f4fc")
+                                )
+                        }
+                    }
+                    .disabled(manager.transcript.isEmpty)
+                    .animation(.easeInOut(duration: 0.2), value: manager.transcript.isEmpty)
+
+                    Text(manager.transcript.isEmpty ? "waiting…" : "tap to send")
+                        .font(.system(size: 11))
+                        .kerning(1.5)
+                        .textCase(.uppercase)
+                        .foregroundColor(Color(hex: "8cbdd4").opacity(0.5))
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            }
+
+            // Agent chips — while thinking or speaking
+            if manager.phase == .thinking || manager.phase == .speaking {
+                HStack(spacing: 8) {
+                    ForEach(manager.recentAgents, id: \.rawValue) { ag in
+                        AgentChip(agent: ag)
+                            .transition(.scale(scale: 0.7).combined(with: .opacity))
+                    }
+                }
+                .frame(height: 32)
+                .animation(.spring(response: 0.35, dampingFraction: 0.7), value: manager.recentAgents)
+                .transition(.opacity)
             }
         }
-        .frame(height: 32)
-        .animation(.spring(response: 0.35, dampingFraction: 0.7), value: manager.recentAgents)
+        .frame(minHeight: 110)
+        .animation(.easeInOut(duration: 0.25), value: manager.phase)
     }
 }
 
-// MARK: - Waveform ring
+// MARK: - Mic pulse indicator
+struct MicPulse: View {
+    let level: Float
+
+    var body: some View {
+        HStack(spacing: 3) {
+            ForEach(0..<9, id: \.self) { i in
+                let center = 4
+                let distFromCenter = abs(i - center)
+                let baseHeight: CGFloat = 4
+                let maxExtra: CGFloat = 18
+                let randomBoost = CGFloat.random(in: 0.6...1.4)
+                let liveHeight = baseHeight + CGFloat(level) * maxExtra * randomBoost
+                                    * max(0, 1 - CGFloat(distFromCenter) * 0.18)
+
+                Capsule()
+                    .fill(Color(hex: "7ecdb8").opacity(0.7))
+                    .frame(width: 3, height: max(baseHeight, liveHeight))
+                    .animation(.easeOut(duration: 0.08), value: level)
+            }
+        }
+        .frame(height: 28)
+    }
+}
+
+// MARK: - Waveform ring (unchanged)
 struct WaveformRing: View {
     let level: Float
     let isListening: Bool

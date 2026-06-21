@@ -172,14 +172,14 @@ struct HintLabels: View {
                     Text("▾").font(.system(size: 12))
                 }
                 .foregroundColor(Color(hex: "786c84").opacity(opacity))
-                .position(x: geo.size.width / 2, y: 128)
+                .position(x: geo.size.width / 2, y: 60)
 
                 VStack(spacing: 2) {
                     Text("▴").font(.system(size: 12))
                     Text("Insights").font(.system(size: 10, weight: .semibold)).kerning(2.5).textCase(.uppercase)
                 }
                 .foregroundColor(Color(hex: "786c84").opacity(opacity))
-                .position(x: geo.size.width / 2, y: geo.size.height - 96)
+                .position(x: geo.size.width / 2, y: geo.size.height - 170)
 
                 // Left: Rhythm — rotate entire label so it reads bottom-to-top
                 VStack(spacing: 3) {

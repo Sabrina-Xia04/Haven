@@ -154,6 +154,15 @@ class VoiceConversationManager: ObservableObject {
         audioLevel = 0
     }
 
+    /// User taps "done" manually — process whatever transcript we have so far.
+    func sendCurrentTranscript() {
+        let text = transcript.trimmingCharacters(in: .whitespaces)
+        guard !text.isEmpty, phase == .listening else { return }
+        capture.stop()
+        stt.disconnect()
+        Task { await runAgentTurn(userText: text) }
+    }
+
     // MARK: - Live mode
     private func startLive() {
         Task {
