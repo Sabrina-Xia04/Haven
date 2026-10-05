@@ -7,18 +7,16 @@ struct VoiceConversationOverlay: View {
 
     var body: some View {
         ZStack {
-            Color(hex: "050e18").opacity(0.96)
-                .ignoresSafeArea()
+            Color(hex: "050e18").opacity(0.96).ignoresSafeArea()
 
             VStack(spacing: 0) {
                 topBar
-                Spacer(minLength: 0)
                 cloudSection
-                Spacer(minLength: 0)
-                transcriptSection
-                Spacer(minLength: 0)
+                    .padding(.top, 4)
+                conversationArea   // history + current turn
+                    .frame(maxHeight: .infinity)
                 bottomSection
-                Spacer(minLength: 48)
+                Spacer(minLength: 40)
             }
         }
         .transition(.opacity.combined(with: .scale(scale: 0.96)))
@@ -32,13 +30,8 @@ struct VoiceConversationOverlay: View {
                 .kerning(2)
                 .textCase(.uppercase)
                 .foregroundColor(Color(hex: "8cbdd4").opacity(0.7))
-
             Spacer()
-
-            Button(action: {
-                manager.endConversation()
-                onDismiss()
-            }) {
+            Button(action: { manager.endConversation(); onDismiss() }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(Color(hex: "8cbdd4").opacity(0.7))
@@ -63,13 +56,11 @@ struct VoiceConversationOverlay: View {
     // MARK: - Cloud
     private var cloudSection: some View {
         ZStack {
-            WaveformRing(level: manager.audioLevel,
-                         isListening: manager.phase == .listening)
-
+            WaveformRing(level: manager.audioLevel, isListening: manager.phase == .listening)
             Image("HavenMascot")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 90, height: 90)
+                .frame(width: 72, height: 72)
                 .shadow(color: cloudGlow.opacity(cloudGlowOpacity), radius: cloudGlowRadius)
                 .scaleEffect(manager.phase == .speaking ? 1.04 : 1.0)
                 .animation(
@@ -79,17 +70,14 @@ struct VoiceConversationOverlay: View {
                     value: manager.phase
                 )
         }
-        .frame(width: 190, height: 190)
-        .padding(.vertical, 8)
+        .frame(width: 160, height: 160)
     }
 
     private var cloudGlow: Color { Color(hex: "cde8f6") }
     private var cloudGlowOpacity: Double {
         switch manager.phase {
-        case .idle:      return 0.2
-        case .listening: return 0.45
-        case .thinking:  return 0.3
-        case .speaking:  return 0.7
+        case .idle: return 0.2; case .listening: return 0.45
+        case .thinking: return 0.3; case .speaking: return 0.7
         }
     }
     private var cloudGlowRadius: CGFloat {
@@ -99,58 +87,103 @@ struct VoiceConversationOverlay: View {
         }
     }
 
-    // MARK: - Transcript / response text
-    private var transcriptSection: some View {
-        ZStack {
-            // User's live transcript — large, prominent
-            if manager.phase == .listening || manager.phase == .thinking {
-                VStack(spacing: 10) {
-                    if !manager.transcript.isEmpty {
-                        Text(manager.transcript)
-                            .font(.system(size: 22, weight: .light))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(6)
-                            .padding(.horizontal, 32)
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    } else if manager.phase == .listening {
-                        Text("say something…")
-                            .font(.custom("Georgia-Italic", size: 18))
-                            .foregroundColor(Color(hex: "8cbdd4").opacity(0.4))
-                            .transition(.opacity)
+    // MARK: - Conversation area (history + live turn)
+    private var conversationArea: some View {
+        ScrollViewReader { proxy in
+            ScrollView(showsIndicators: false) {
+                LazyVStack(spacing: 16) {
+                    // Past turns
+                    ForEach(manager.turnHistory) { turn in
+                        TurnView(turn: turn)
+                            .id(turn.id)
                     }
-                }
-            }
 
-            // Haven's streamed response
-            if manager.phase == .speaking || manager.phase == .thinking {
-                VStack(spacing: 14) {
-                    if !manager.havenResponse.isEmpty {
-                        Text(manager.havenResponse)
-                            .font(.custom("Georgia-Italic", size: 20))
-                            .foregroundColor(Color(hex: "e6f4fc"))
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(6)
-                            .padding(.horizontal, 28)
-                            .transition(.opacity)
-                    } else if manager.phase == .thinking {
-                        ThinkingDots()
+                    // Current live turn
+                    if manager.phase == .listening {
+                        liveSpeechBubble
+                            .id("live")
+                    }
+                    if manager.phase == .thinking || manager.phase == .speaking {
+                        liveHavenBubble
+                            .id("live")
                     }
                 }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
+            }
+            .onChange(of: manager.transcript) { _, _ in
+                withAnimation { proxy.scrollTo("live", anchor: .bottom) }
+            }
+            .onChange(of: manager.havenResponse) { _, _ in
+                withAnimation { proxy.scrollTo("live", anchor: .bottom) }
+            }
+            .onChange(of: manager.turnHistory.count) { _, _ in
+                withAnimation { proxy.scrollTo("live", anchor: .bottom) }
             }
         }
-        .frame(minHeight: 120)
-        .animation(.easeInOut(duration: 0.25), value: manager.transcript)
-        .animation(.easeInOut(duration: 0.3),  value: manager.havenResponse)
-        .animation(.easeInOut(duration: 0.2),  value: manager.phase)
     }
 
-    // MARK: - Bottom: send button (listening) or agent chips (response) or idle status
+    // User's live speech
+    private var liveSpeechBubble: some View {
+        HStack {
+            Spacer()
+            Group {
+                if manager.transcript.isEmpty {
+                    Text("say something…")
+                        .font(.custom("Georgia-Italic", size: 16))
+                        .foregroundColor(Color(hex: "8cbdd4").opacity(0.4))
+                } else {
+                    Text(manager.transcript)
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundColor(Color(hex: "e6f4fc"))
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color(hex: "cde8f6").opacity(0.10))
+            )
+        }
+        .transition(.opacity.combined(with: .move(edge: .bottom)))
+    }
+
+    // Haven's live streaming response
+    private var liveHavenBubble: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image("HavenMascot")
+                .resizable()
+                .frame(width: 24, height: 24)
+                .clipShape(Circle())
+
+            Group {
+                if manager.phase == .thinking && manager.havenResponse.isEmpty {
+                    ThinkingDots()
+                        .padding(.vertical, 4)
+                } else {
+                    MarkdownText(manager.havenResponse)
+                        .font(.custom("Georgia-Italic", size: 17))
+                        .foregroundColor(Color(hex: "e6f4fc"))
+                        .lineSpacing(4)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color(hex: "1a3a52").opacity(0.6))
+            )
+
+            Spacer()
+        }
+        .transition(.opacity.combined(with: .move(edge: .bottom)))
+    }
+
+    // MARK: - Bottom section
     private var bottomSection: some View {
         ZStack {
-            // Send / done button — visible while listening
             if manager.phase == .listening {
-                VStack(spacing: 12) {
+                VStack(spacing: 10) {
                     MicPulse(level: manager.audioLevel)
 
                     Button(action: { manager.sendCurrentTranscript() }) {
@@ -161,7 +194,7 @@ struct VoiceConversationOverlay: View {
                                         ? Color(hex: "cde8f6").opacity(0.12)
                                         : Color(hex: "7ecdb8").opacity(0.28)
                                 )
-                                .frame(width: 64, height: 64)
+                                .frame(width: 60, height: 60)
                                 .overlay(
                                     Circle().stroke(
                                         manager.transcript.isEmpty
@@ -170,9 +203,8 @@ struct VoiceConversationOverlay: View {
                                         lineWidth: 1.5
                                     )
                                 )
-
                             Image(systemName: manager.transcript.isEmpty ? "stop.fill" : "arrow.up")
-                                .font(.system(size: manager.transcript.isEmpty ? 18 : 22, weight: .semibold))
+                                .font(.system(size: manager.transcript.isEmpty ? 16 : 20, weight: .semibold))
                                 .foregroundColor(
                                     manager.transcript.isEmpty
                                         ? Color(hex: "8cbdd4").opacity(0.6)
@@ -186,7 +218,6 @@ struct VoiceConversationOverlay: View {
                         Text(err)
                             .font(.system(size: 12))
                             .foregroundColor(Color(hex: "e8a0a0").opacity(0.85))
-                            .transition(.opacity)
                     } else {
                         Text(manager.transcript.isEmpty ? "listening…" : "tap ↑ to send")
                             .font(.system(size: 11))
@@ -198,7 +229,6 @@ struct VoiceConversationOverlay: View {
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }
 
-            // Agent chips — while thinking or speaking
             if manager.phase == .thinking || manager.phase == .speaking {
                 HStack(spacing: 8) {
                     ForEach(manager.recentAgents, id: \.rawValue) { ag in
@@ -211,9 +241,8 @@ struct VoiceConversationOverlay: View {
                 .transition(.opacity)
             }
 
-            // Idle state — show error or debug status so user isn't staring at a blank screen
             if manager.phase == .idle {
-                VStack(spacing: 10) {
+                VStack(spacing: 14) {
                     if let err = manager.errorMessage {
                         Text(err)
                             .font(.system(size: 13, weight: .medium))
@@ -227,33 +256,119 @@ struct VoiceConversationOverlay: View {
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 32)
                     }
+
+                    // Tap to restart listening from idle
+                    Button(action: { manager.startConversation() }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "mic")
+                                .font(.system(size: 14))
+                            Text("tap to speak")
+                                .font(.system(size: 13, weight: .medium))
+                        }
+                        .foregroundColor(Color(hex: "cde8f6").opacity(0.7))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(
+                            Capsule()
+                                .fill(Color(hex: "cde8f6").opacity(0.10))
+                                .overlay(Capsule().stroke(Color(hex: "cde8f6").opacity(0.2), lineWidth: 1))
+                        )
+                    }
                 }
                 .transition(.opacity)
             }
         }
-        .frame(minHeight: 110)
+        .frame(minHeight: 100)
         .animation(.easeInOut(duration: 0.25), value: manager.phase)
     }
 }
 
-// MARK: - Mic pulse indicator
+// MARK: - Past turn view
+struct TurnView: View {
+    let turn: ConversationTurn
+
+    var body: some View {
+        VStack(spacing: 8) {
+            // User bubble (right-aligned)
+            HStack {
+                Spacer()
+                Text(turn.userText)
+                    .font(.system(size: 15))
+                    .foregroundColor(Color(hex: "cde8f6").opacity(0.75))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 9)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(hex: "cde8f6").opacity(0.08))
+                    )
+            }
+
+            // Haven bubble (left-aligned)
+            if !turn.havenText.isEmpty {
+                HStack(alignment: .top, spacing: 10) {
+                    Image("HavenMascot")
+                        .resizable()
+                        .frame(width: 22, height: 22)
+                        .clipShape(Circle())
+                        .opacity(0.6)
+
+                    MarkdownText(turn.havenText)
+                        .font(.custom("Georgia-Italic", size: 15))
+                        .foregroundColor(Color(hex: "e6f4fc").opacity(0.6))
+                        .lineSpacing(3)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color(hex: "1a3a52").opacity(0.35))
+                        )
+
+                    Spacer()
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Markdown renderer
+/// Renders markdown inline styles (bold, italic, code) using AttributedString.
+struct MarkdownText: View {
+    private let attributed: AttributedString
+    private let fallback: String
+
+    init(_ text: String) {
+        self.fallback = text
+        if let attr = try? AttributedString(
+            markdown: text,
+            options: AttributedString.MarkdownParsingOptions(
+                interpretedSyntax: .inlineOnlyPreservingWhitespace
+            )
+        ) {
+            self.attributed = attr
+        } else {
+            self.attributed = AttributedString(text)
+        }
+    }
+
+    var body: some View {
+        Text(attributed)
+    }
+}
+
+// MARK: - Mic pulse
 struct MicPulse: View {
     let level: Float
-
     var body: some View {
         HStack(spacing: 3) {
             ForEach(0..<9, id: \.self) { i in
                 let center = 4
-                let distFromCenter = abs(i - center)
-                let baseHeight: CGFloat = 4
-                let maxExtra: CGFloat = 18
-                let randomBoost = CGFloat.random(in: 0.6...1.4)
-                let liveHeight = baseHeight + CGFloat(level) * maxExtra * randomBoost
-                                    * max(0, 1 - CGFloat(distFromCenter) * 0.18)
-
+                let dist = abs(i - center)
+                let base: CGFloat = 4
+                let liveH = base + CGFloat(level) * 18 * CGFloat.random(in: 0.6...1.4)
+                              * max(0, 1 - CGFloat(dist) * 0.18)
                 Capsule()
                     .fill(Color(hex: "7ecdb8").opacity(0.7))
-                    .frame(width: 3, height: max(baseHeight, liveHeight))
+                    .frame(width: 3, height: max(base, liveH))
                     .animation(.easeOut(duration: 0.08), value: level)
             }
         }
@@ -261,11 +376,10 @@ struct MicPulse: View {
     }
 }
 
-// MARK: - Waveform ring (unchanged)
+// MARK: - Waveform ring
 struct WaveformRing: View {
     let level: Float
     let isListening: Bool
-
     private let barCount = 28
     @State private var idlePhase: Double = 0
 
@@ -273,17 +387,14 @@ struct WaveformRing: View {
         ZStack {
             ForEach(0..<barCount, id: \.self) { i in
                 let angle = Double(i) / Double(barCount) * 2 * .pi
-                let idleH = isListening
-                    ? 0.0
-                    : abs(sin(idlePhase + Double(i) * 0.5)) * 6 + 2
+                let idleH = isListening ? 0.0 : abs(sin(idlePhase + Double(i) * 0.5)) * 6 + 2
                 let liveH = isListening
-                    ? CGFloat(level) * CGFloat.random(in: 18...32) + 4
+                    ? CGFloat(level) * CGFloat.random(in: 14...26) + 4
                     : CGFloat(idleH)
-
                 Capsule()
                     .fill(Color(hex: "cde8f6").opacity(isListening ? 0.55 : 0.22))
                     .frame(width: 3, height: liveH)
-                    .offset(y: -85)
+                    .offset(y: -68)
                     .rotationEffect(.degrees(angle * 180 / .pi))
                     .animation(.easeOut(duration: 0.08), value: level)
             }
@@ -299,7 +410,6 @@ struct WaveformRing: View {
 // MARK: - Agent chip
 struct AgentChip: View {
     let agent: AgentType
-
     var body: some View {
         HStack(spacing: 5) {
             Text(agent.emoji).font(.system(size: 11))
@@ -321,7 +431,6 @@ struct AgentChip: View {
 struct ThinkingDots: View {
     @State private var phase = 0
     private let timer = Timer.publish(every: 0.42, on: .main, in: .common).autoconnect()
-
     var body: some View {
         HStack(spacing: 6) {
             ForEach(0..<3) { i in
@@ -336,7 +445,6 @@ struct ThinkingDots: View {
     }
 }
 
-// MARK: - Animation helper
 extension Animation {
     func repeatWhileTrue(_ condition: Bool) -> Animation {
         condition ? self.repeatForever(autoreverses: true) : self

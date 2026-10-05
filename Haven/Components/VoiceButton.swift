@@ -42,7 +42,7 @@ struct VoiceButton: View {
             }
         }
         .buttonStyle(.plain)
-        .onChange(of: isActive) { active in
+        .onChange(of: isActive) { _, active in
             if active { startPulse() } else { stopPulse() }
         }
     }

@@ -51,19 +51,26 @@ enum VoicePhase {
     case speaking
 }
 
+struct ConversationTurn: Identifiable {
+    let id = UUID()
+    let userText: String
+    let havenText: String   // may contain markdown
+}
+
 // MARK: - Manager
 @MainActor
 class VoiceConversationManager: ObservableObject {
 
     // ── Published UI state ──────────────────────────────────────────────
     @Published var phase: VoicePhase = .idle
-    @Published var transcript   = ""     // current user speech (interim)
-    @Published var havenResponse = ""    // Haven's streamed reply
+    @Published var transcript    = ""    // current user speech (interim)
+    @Published var havenResponse = ""    // Haven's streamed reply (current turn)
     @Published var activeAgent: AgentType = .companion
-    @Published var recentAgents: [AgentType] = []   // for chips UI
+    @Published var recentAgents: [AgentType] = []
     @Published var audioLevel: Float = 0
-    @Published var errorMessage: String? = nil   // mic permission / connection errors
-    @Published var debugStatus: String = ""      // visible in overlay for diagnostics
+    @Published var errorMessage: String? = nil
+    @Published var debugStatus: String = ""
+    @Published var turnHistory: [ConversationTurn] = []  // completed turns
 
     private func setStatus(_ msg: String) {
         print("ℹ️ [VCM] \(msg)")
@@ -89,15 +96,22 @@ class VoiceConversationManager: ObservableObject {
     // MARK: - Wire services together
     private var chunksReceived = 0
     private func wireUp() {
-        // Audio level → published
+        // Audio level + forward chunks to STT
         capture.onChunk = { [weak self] data in
             guard let self else { return }
             self.chunksReceived += 1
             self.audioLevel = self.capture.level
             if self.chunksReceived == 1 || self.chunksReceived % 50 == 0 {
-                print("🎵 [VCM] audio chunk #\(self.chunksReceived), \(data.count) bytes, level=\(String(format:"%.2f", self.capture.level))")
+                print("🎵 [VCM] audio chunk #\(self.chunksReceived), \(data.count) bytes")
             }
             self.stt.send(data)
+        }
+
+        // TTS queue empty → resume listening for next turn
+        player.onQueueEmpty = { [weak self] in
+            guard let self, self.phase == .speaking else { return }
+            print("🔊 [VCM] TTS queue empty — resuming listening")
+            self.resumeListening()
         }
 
         // Interim STT → show transcript live
@@ -105,12 +119,13 @@ class VoiceConversationManager: ObservableObject {
             .receive(on: RunLoop.main)
             .assign(to: &$transcript)
 
-        // Final STT → call agent
+        // Final STT → call agent (only if still listening to prevent double-trigger)
         stt.$finalTranscript
             .receive(on: RunLoop.main)
             .compactMap { $0 }
             .sink { [weak self] text in
-                guard let self, !text.isEmpty else { return }
+                guard let self, !text.isEmpty, self.phase == .listening else { return }
+                print("📝 [VCM] finalTranscript fired: \"\(text)\"")
                 Task { await self.runAgentTurn(userText: text) }
             }
             .store(in: &cancellables)
@@ -164,6 +179,9 @@ class VoiceConversationManager: ObservableObject {
         phase = .idle
         demoListening = false
         audioLevel = 0
+        turnHistory = []
+        havenResponse = ""
+        transcript = ""
     }
 
     /// User taps the send/stop button while listening.
@@ -177,11 +195,11 @@ class VoiceConversationManager: ObservableObject {
         capture.stop()
         stt.disconnect()
         if text.isEmpty {
-            // Nothing was heard — stay in idle so user can try again
-            phase = .idle
+            // Nothing heard — show hint and restart listening after a moment
             errorMessage = "Didn't catch that — try again"
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
                 self.errorMessage = nil
+                self.resumeListening()
             }
         } else {
             Task { await runAgentTurn(userText: text) }
@@ -229,17 +247,35 @@ class VoiceConversationManager: ObservableObject {
             await synthesizeAndPlay(last)
         }
 
-        phase = .speaking
-        // After audio finishes → restart listening
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if !self.player.isPlaying { self.resumeListening() }
+        // Save completed turn to history
+        let completedResponse = havenResponse
+        if !userText.isEmpty || !completedResponse.isEmpty {
+            turnHistory.append(ConversationTurn(userText: userText, havenText: completedResponse))
         }
+
+        phase = .speaking
+
+        // If TTS has nothing queued (e.g. TTS disabled / error), resume immediately
+        if !player.isPlaying {
+            print("🔊 [VCM] no TTS playing — resuming listening immediately")
+            resumeListening()
+        }
+        // Otherwise onQueueEmpty callback handles resumeListening()
     }
 
     private func resumeListening() {
         havenResponse = ""
         transcript    = ""
-        try? capture.start()
+        chunksReceived = 0
+        print("🎙 [VCM] resumeListening — restarting capture + STT")
+        do {
+            try capture.start()
+        } catch {
+            print("❌ [VCM] resumeListening capture.start failed: \(error)")
+            errorMessage = "Mic restart failed — tap to retry"
+            phase = .idle
+            return
+        }
         stt.connect()
         phase = .listening
     }

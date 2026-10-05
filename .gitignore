@@ -24,3 +24,6 @@ Haven/Config/Secrets.swift
 Pods/
 *.xcworkspace
 !default.xcworkspace
+
+# Xcode build output (may embed secrets)
+build/

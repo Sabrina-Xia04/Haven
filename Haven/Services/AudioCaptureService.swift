@@ -1,4 +1,4 @@
-import AVFoundation
+@preconcurrency import AVFoundation
 
 /// Captures microphone audio and streams 16-kHz linear-16 PCM chunks.
 @MainActor
@@ -19,8 +19,10 @@ class AudioCaptureService: ObservableObject {
     // MARK: - Permission
     func requestPermission() async -> Bool {
         await withCheckedContinuation { cont in
-            AVAudioSession.sharedInstance().requestRecordPermission {
-                cont.resume(returning: $0)
+            if #available(iOS 17.0, *) {
+                AVAudioApplication.requestRecordPermission { cont.resume(returning: $0) }
+            } else {
+                AVAudioSession.sharedInstance().requestRecordPermission { cont.resume(returning: $0) }
             }
         }
     }
@@ -30,7 +32,7 @@ class AudioCaptureService: ObservableObject {
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playAndRecord,
                                 mode: .measurement,
-                                options: [.defaultToSpeaker, .allowBluetooth])
+                                options: [.defaultToSpeaker, .allowBluetoothHFP])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
         print("🎤 [Capture] AVAudioSession active. sampleRate=\(session.sampleRate) inputChannels=\(session.inputNumberOfChannels)")
 
@@ -50,28 +52,34 @@ class AudioCaptureService: ObservableObject {
         var tapCount = 0
 
         input.installTap(onBus: 0, bufferSize: 4096, format: inputFmt) { [weak self] buf, _ in
+            // ── Audio thread ───────────────────────────────────────────────
             tapCount += 1
             if tapCount == 1 { print("🎤 [Capture] first tap fired! frameLength=\(buf.frameLength)") }
 
-            // RMS level — post to main actor
+            // RMS level — copy frames out before touching anything actor-isolated
+            var rms: Float = 0
             if let ch = buf.floatChannelData?[0] {
                 let n = Int(buf.frameLength)
                 var sum: Float = 0
                 for i in 0..<n { sum += ch[i] * ch[i] }
-                let rms = sqrt(sum / Float(max(n, 1)))
-                Task { @MainActor in self?.level = min(rms * 25, 1.0) }
+                rms = sqrt(sum / Float(max(n, 1)))
             }
 
-            // Resample — pure static, no actor isolation needed
+            // Resample to 16-kHz int16 — pure static, no actor isolation needed
             guard let pcm = AudioCaptureService.resample(buf, to: outFmt),
                   let ptr = pcm.int16ChannelData else {
                 if tapCount <= 3 { print("⚠️ [Capture] resample returned nil on tap #\(tapCount)") }
                 return
             }
-            let data = Data(bytes: ptr[0], count: Int(pcm.frameLength) * 2)
+            // Copy bytes off the audio buffer before dispatching to main actor
+            let frameCount = Int(pcm.frameLength)
+            let data = Data(bytes: ptr[0], count: frameCount * 2)
             guard !data.isEmpty else { return }
 
-            Task { @MainActor in self?.onChunk?(data) }
+            Task { @MainActor in
+                self?.level = min(rms * 25, 1.0)
+                self?.onChunk?(data)
+            }
         }
 
         try engine.start()

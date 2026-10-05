@@ -231,6 +231,13 @@ class HavenViewModel: ObservableObject {
         saveMemories()
     }
 
+    func deleteMemory(_ item: MemoryItem) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            memoryItems.removeAll { $0.id == item.id }
+        }
+        saveMemories()
+    }
+
     // MARK: - Daily reset
     private func checkDailyReset() {
         let today = Seed.today()
@@ -245,12 +252,20 @@ class HavenViewModel: ObservableObject {
     private static let seedsKey = "haven_seeds_v2"
 
     private static func loadSeeds() -> [Seed] {
-        guard let data = UserDefaults.standard.data(forKey: seedsKey),
-              let decoded = try? JSONDecoder().decode([Seed].self, from: data)
-        else {
-            return []    // fresh install → empty list
+        if let data = UserDefaults.standard.data(forKey: seedsKey),
+           let decoded = try? JSONDecoder().decode([Seed].self, from: data),
+           !decoded.isEmpty {
+            return decoded
         }
-        return decoded
+        // Demo data — shown on first launch (simulates Apple Calendar connection)
+        return [
+            Seed(label: "Team standup · 10:00 AM",         source: "calendar"),
+            Seed(label: "Submit project brief",             source: "calendar"),
+            Seed(label: "Dentist appointment · 2:30 PM",   source: "calendar"),
+            Seed(label: "Review PR feedback",              source: nil),
+            Seed(label: "Call with Sarah · 4:00 PM",       source: "calendar"),
+            Seed(label: "Drink water",                     source: nil),
+        ]
     }
 
     private func saveSeeds() {
@@ -269,19 +284,19 @@ class HavenViewModel: ObservableObject {
         }
         // Demo seed data — shown on first launch
         return [
-            MemoryItem(title: "研究提案",   subtitle: "让你感到\n窒息的开始",
+            MemoryItem(title: "Research",     subtitle: "where the\noverwhelm began",
                        size: 158, xFraction: 0.22, yFraction: 0.28, animDelay: 0.0),
-            MemoryItem(title: "自我批判",   subtitle: "总是比别人\n更苛刻自己",
+            MemoryItem(title: "Self-critic",  subtitle: "harder on yourself\nthan anyone else",
                        size: 138, xFraction: 0.65, yFraction: 0.22, animDelay: 0.2),
-            MemoryItem(title: "睡前焦虑",   subtitle: "凌晨三点\n脑子停不下来",
+            MemoryItem(title: "3am thoughts", subtitle: "mind won't\nswitch off",
                        size: 148, xFraction: 0.50, yFraction: 0.52, animDelay: 0.4),
-            MemoryItem(title: "喜欢独处",   subtitle: "充电方式\n是安静",
+            MemoryItem(title: "Solitude",     subtitle: "how you\nrecharge",
                        size: 128, xFraction: 0.20, yFraction: 0.65, animDelay: 0.6),
-            MemoryItem(title: "咖啡是仪式", subtitle: "早晨的锚点",
+            MemoryItem(title: "Morning coffee", subtitle: "your daily\nanchor",
                        size: 128, xFraction: 0.75, yFraction: 0.60, animDelay: 0.8),
-            MemoryItem(title: "拖延背后",   subtitle: "是害怕\n做得不够好",
+            MemoryItem(title: "Procrastination", subtitle: "fear of not\nbeing enough",
                        size: 148, xFraction: 0.38, yFraction: 0.80, animDelay: 1.0),
-            MemoryItem(title: "对朋友温柔", subtitle: "对自己\n却很难",
+            MemoryItem(title: "Kind to others", subtitle: "rarely to\nyourself",
                        size: 138, xFraction: 0.72, yFraction: 0.82, animDelay: 1.2),
         ]
     }

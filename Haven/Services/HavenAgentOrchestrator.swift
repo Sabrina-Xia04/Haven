@@ -116,89 +116,120 @@ class HavenAgentOrchestrator: ObservableObject {
     ]}
 
     // MARK: - Respond
-    func respond(to userText: String) async {
-        history.append(["role": "user", "content": userText])
-        activeAgent = .companion
-
+    /// nonisolated: runs entirely on the cooperative thread pool.
+    /// Reads actor state once at the top, writes back once at the bottom.
+    /// Zero chance of main-actor deadlock.
+    nonisolated func respond(to userText: String) async {
         guard !HavenConfig.isDemoMode else { return }
 
-        let body: [String: Any] = [
-            "model":      HavenConfig.agentModel,
-            "max_tokens": 512,
-            "system":     systemPrompt,
-            "messages":   history,
-            "tools":      tools,
-            "stream":     true
-        ]
-        guard let bodyData = try? JSONSerialization.data(withJSONObject: body) else { return }
+        // ── 1. Snapshot mutable state on the main actor ──────────────────
+        let (snapshot, req) = await MainActor.run { () -> ([[String: Any]], URLRequest) in
+            self.history.append(["role": "user", "content": userText])
+            self.activeAgent = .companion
 
-        var req = URLRequest(url: URL(string: "https://api.anthropic.com/v1/messages")!)
-        req.httpMethod = "POST"
-        req.setValue(HavenConfig.anthropicAPIKey, forHTTPHeaderField: "x-api-key")
-        req.setValue("2023-06-01",         forHTTPHeaderField: "anthropic-version")
-        req.setValue("application/json",   forHTTPHeaderField: "Content-Type")
-        req.httpBody = bodyData
+            let body: [String: Any] = [
+                "model":      HavenConfig.agentModel,
+                "max_tokens": 512,
+                "system":     self.systemPrompt,
+                "messages":   self.history,
+                "tools":      self.tools,
+                "stream":     true
+            ]
+            var r = URLRequest(url: URL(string: "https://api.anthropic.com/v1/messages")!)
+            r.httpMethod = "POST"
+            r.setValue(HavenConfig.anthropicAPIKey, forHTTPHeaderField: "x-api-key")
+            r.setValue("2023-06-01",       forHTTPHeaderField: "anthropic-version")
+            r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            r.httpBody = try? JSONSerialization.data(withJSONObject: body)
+            print("🤖 [Agent] sending, history=\(self.history.count) turns")
+            return (self.history, r)
+        }
+        _ = snapshot   // retained so ARC keeps the captured arrays alive
 
-        var assistantText = ""
-        var toolName = ""
-        var toolInputAccum = ""
-        var inToolUse = false
+        // ── 2. Stream on cooperative pool ────────────────────────────────
+        var accumulated = ""
+        var toolName    = ""
+        var toolInput   = ""
+        var inToolUse   = false
 
         do {
-            let (bytes, _) = try await URLSession.shared.bytes(for: req)
+            let (bytes, response) = try await URLSession.shared.bytes(for: req)
+            if let http = response as? HTTPURLResponse {
+                print("🤖 [Agent] HTTP \(http.statusCode)")
+                guard http.statusCode == 200 else {
+                    print("❌ [Agent] non-200 — likely invalid API key or rate limit")
+                    await MainActor.run { self.activeAgent = .companion }
+                    return
+                }
+            }
+
             for try await line in bytes.lines {
                 guard line.hasPrefix("data: ") else { continue }
                 let payload = String(line.dropFirst(6))
                 guard payload != "[DONE]",
-                      let d = payload.data(using: .utf8),
+                      let d   = payload.data(using: .utf8),
                       let obj = try? JSONSerialization.jsonObject(with: d) as? [String: Any]
                 else { continue }
 
-                let evtType = obj["type"] as? String ?? ""
+                switch obj["type"] as? String ?? "" {
 
-                switch evtType {
                 case "content_block_start":
                     if let block = obj["content_block"] as? [String: Any],
                        block["type"] as? String == "tool_use" {
-                        toolName = block["name"] as? String ?? ""
-                        toolInputAccum = ""
+                        toolName  = block["name"] as? String ?? ""
+                        toolInput = ""
                         inToolUse = true
-                        activeAgent = agentFor(tool: toolName)
+                        let ag = agentFor(tool: toolName)
+                        await MainActor.run { self.activeAgent = ag }
                     }
 
                 case "content_block_delta":
                     guard let delta = obj["delta"] as? [String: Any] else { break }
                     if inToolUse {
-                        toolInputAccum += delta["partial_json"] as? String ?? ""
+                        toolInput += delta["partial_json"] as? String ?? ""
                     } else {
                         let chunk = delta["text"] as? String ?? ""
-                        assistantText += chunk
-                        onTextChunk?(chunk)
+                        accumulated += chunk
+                        if !chunk.isEmpty {
+                            await MainActor.run { self.onTextChunk?(chunk) }
+                        }
                     }
 
                 case "content_block_stop":
                     if inToolUse {
-                        handleToolCall(name: toolName, inputJSON: toolInputAccum)
-                        inToolUse = false
-                        toolName = ""
-                        toolInputAccum = ""
-                        activeAgent = .companion
+                        let n = toolName; let i = toolInput
+                        await MainActor.run {
+                            self.handleToolCall(name: n, inputJSON: i)
+                            self.activeAgent = .companion
+                        }
+                        inToolUse = false; toolName = ""; toolInput = ""
                     }
 
+                case "message_start":  print("🤖 [Agent] message_start")
+                case "message_stop":   print("🤖 [Agent] done, chars=\(accumulated.count)")
                 default: break
                 }
             }
-        } catch { }
+        } catch {
+            print("❌ [Agent] stream error: \(error)")
+        }
 
-        if !assistantText.isEmpty {
-            history.append(["role": "assistant", "content": assistantText])
+        // ── 3. Write assistant reply back on main actor ──────────────────
+        await MainActor.run {
+            self.activeAgent = .companion
+            if !accumulated.isEmpty {
+                self.history.append(["role": "assistant", "content": accumulated])
+                print("🤖 [Agent] history now \(self.history.count) msgs")
+            }
         }
     }
 
-    func reset() { history = [] }
+    func reset() {
+        history = []
+    }
 
     // MARK: - Tool dispatch
-    private func agentFor(tool: String) -> AgentType {
+    private nonisolated func agentFor(tool: String) -> AgentType {
         switch tool {
         case "manage_seeds":  return .seeds
         case "store_memory":  return .memory

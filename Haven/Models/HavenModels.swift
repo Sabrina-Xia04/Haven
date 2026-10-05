@@ -11,11 +11,13 @@ struct Seed: Identifiable, Codable {
     var label: String
     var done: Bool
     let createdDate: String   // "yyyy-MM-dd" — used for daily reset
+    var source: String?       // nil = manual, "calendar" = Apple Calendar, etc.
 
-    init(id: UUID = UUID(), label: String, done: Bool = false) {
+    init(id: UUID = UUID(), label: String, done: Bool = false, source: String? = nil) {
         self.id = id
         self.label = label
         self.done = done
+        self.source = source
         self.createdDate = Self.today()
     }
 

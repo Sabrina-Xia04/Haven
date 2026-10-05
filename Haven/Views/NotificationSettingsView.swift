@@ -79,7 +79,7 @@ struct NotificationSettingsView: View {
                     VStack(spacing: 14) {
 
                         NotifCard(
-                            icon: "🌊",
+                            icon: "waveform",
                             title: "Daily check-in",
                             subtitle: "Haven asks how you're doing. You can reply right from the notification.",
                             isOn: $checkInOn,
@@ -87,16 +87,16 @@ struct NotificationSettingsView: View {
                         ) {
                             HourPicker(label: "Time", hour: $checkInHour, minute: $checkInMin)
                         }
-                        .onChange(of: checkInOn) { on in
+                        .onChange(of: checkInOn) { _, on in
                             if on { notifManager.scheduleDailyCheckIn(hour: checkInHour, minute: checkInMin) }
                             else  { notifManager.removeNotifications(withPrefix: "checkin") }
                         }
-                        .onChange(of: checkInHour) { _ in
+                        .onChange(of: checkInHour) { _, _ in
                             if checkInOn { notifManager.scheduleDailyCheckIn(hour: checkInHour, minute: checkInMin) }
                         }
 
                         NotifCard(
-                            icon: "🌱",
+                            icon: "leaf",
                             title: "Seed nudge",
                             subtitle: "A gentle reminder that one small thing is always enough.",
                             isOn: $nudgeOn,
@@ -104,13 +104,13 @@ struct NotificationSettingsView: View {
                         ) {
                             HourPicker(label: "Time", hour: $nudgeHour, minute: .constant(0))
                         }
-                        .onChange(of: nudgeOn) { on in
+                        .onChange(of: nudgeOn) { _, on in
                             if on { notifManager.scheduleNudge(hour: nudgeHour) }
                             else  { notifManager.removeNotifications(withPrefix: "nudge") }
                         }
 
                         NotifCard(
-                            icon: "🌙",
+                            icon: "moon.stars",
                             title: "Future self",
                             subtitle: "An evening message from the version of you that got enough rest.",
                             isOn: $futureOn,
@@ -118,20 +118,20 @@ struct NotificationSettingsView: View {
                         ) {
                             HourPicker(label: "Time", hour: $futureHour, minute: .constant(0))
                         }
-                        .onChange(of: futureOn) { on in
+                        .onChange(of: futureOn) { _, on in
                             if on { notifManager.scheduleFutureSelf(hour: futureHour) }
                             else  { notifManager.removeNotifications(withPrefix: "future") }
                         }
 
                         NotifCard(
-                            icon: "✦",
+                            icon: "sparkles",
                             title: "Pattern reminders",
                             subtitle: "Three messages a day timed to your natural energy windows: morning, afternoon, evening.",
                             isOn: $patternOn,
                             isEnabled: notifManager.permissionGranted,
                             footer: "9:00 AM · 2:00 PM · 8:30 PM"
                         )
-                        .onChange(of: patternOn) { on in
+                        .onChange(of: patternOn) { _, on in
                             if on { notifManager.schedulePatternReminders() }
                             else  { notifManager.removeNotifications(withPrefix: "pattern") }
                         }
@@ -170,8 +170,9 @@ struct PermissionBanner: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 14) {
-                Text("🔔")
-                    .font(.system(size: 22))
+                Image(systemName: "bell.badge")
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(hex: "786c84"))
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Allow notifications")
@@ -229,9 +230,12 @@ struct NotifCard<TimePicker: View>: View {
         VStack(alignment: .leading, spacing: 0) {
             // Top row
             HStack(alignment: .top, spacing: 14) {
-                Text(icon)
-                    .font(.system(size: 24))
-                    .frame(width: 36)
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                    .foregroundColor(Color(hex: "786c84").opacity(0.8))
+                    .frame(width: 36, height: 36)
+                    .background(Color(hex: "786c84").opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)

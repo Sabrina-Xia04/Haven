@@ -242,9 +242,22 @@ struct SeedCard: View {
                 }
                 .frame(width: 20, height: 28)
 
-                Text(seed.label)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(Color(hex: "e6f4fc"))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(seed.label)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color(hex: "e6f4fc"))
+
+                    if seed.source == "calendar" {
+                        HStack(spacing: 4) {
+                            Image(systemName: "calendar")
+                                .font(.system(size: 10))
+                            Text("Apple Calendar")
+                                .font(.system(size: 10, weight: .medium))
+                                .kerning(0.3)
+                        }
+                        .foregroundColor(Color(hex: "e8a0a0").opacity(0.8))
+                    }
+                }
 
                 Spacer()
 

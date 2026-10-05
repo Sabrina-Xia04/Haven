@@ -7,6 +7,9 @@ class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     @Published var isPlaying = false
 
+    /// Called on main actor when the queue drains completely.
+    var onQueueEmpty: (() -> Void)?
+
     private var queue: [Data] = []
     private var player: AVAudioPlayer?
 
@@ -26,7 +29,11 @@ class AudioPlayerService: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     // MARK: - Private
     private func playNext() {
-        guard !queue.isEmpty else { isPlaying = false; return }
+        guard !queue.isEmpty else {
+            isPlaying = false
+            onQueueEmpty?()
+            return
+        }
         let data = queue.removeFirst()
         do {
             player = try AVAudioPlayer(data: data)
